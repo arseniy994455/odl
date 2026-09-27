@@ -6,6 +6,8 @@
 
 <title>My Demon List</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 :root{
   --blue:#18aee8;
@@ -15,6 +17,7 @@
   --text:#12324a;
   --muted:#6a8799;
   --border:#d9f2fc;
+  --danger:#ef5350;
   --shadow:0 10px 30px rgba(8,124,194,.14);
 }
 
@@ -58,12 +61,19 @@ header{
   color:var(--text);
 }
 
+.nav-right{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
 button{
   border:0;
   border-radius:12px;
   padding:11px 16px;
   font-weight:800;
   cursor:pointer;
+  font-size:14px;
 }
 
 button:active{
@@ -81,6 +91,11 @@ button:active{
   color:var(--blue2);
 }
 
+.danger{
+  background:#fff0f0;
+  color:#d93636;
+}
+
 .hero{
   max-width:1100px;
   margin:45px auto 25px;
@@ -88,4 +103,1121 @@ button:active{
 }
 
 .hero h1{
-  font-size:clamp(36px,6vw,68
+  margin:0;
+  font-size:clamp(36px,6vw,68px);
+  line-height:1;
+  letter-spacing:-2px;
+}
+
+.hero h1 span{
+  color:var(--blue);
+}
+
+.hero p{
+  color:var(--muted);
+  font-size:17px;
+  margin-top:15px;
+}
+
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:0 22px 60px;
+}
+
+.toolbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  margin:25px 0;
+  flex-wrap:wrap;
+}
+
+.toolbar h2{
+  margin:0;
+  font-size:25px;
+}
+
+.status{
+  color:var(--muted);
+  font-size:14px;
+}
+
+.levels{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.level{
+  background:rgba(255,255,255,.95);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:13px;
+  display:grid;
+  grid-template-columns:90px 1fr auto;
+  gap:16px;
+  align-items:center;
+  box-shadow:var(--shadow);
+  transition:.2s;
+}
+
+.level:hover{
+  transform:translateY(-2px);
+  box-shadow:0 15px 35px rgba(8,124,194,.18);
+}
+
+.rank{
+  width:90px;
+  height:70px;
+  border-radius:14px;
+  background:linear-gradient(135deg,#e4f8ff,#bdeeff);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  font-weight:950;
+  color:var(--blue2);
+  overflow:hidden;
+}
+
+.rank img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.info h3{
+  margin:0 0 5px;
+  font-size:20px;
+}
+
+.info p{
+  margin:0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+.score{
+  color:var(--blue2);
+  font-weight:900;
+  margin-top:7px;
+}
+
+.actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.actions button{
+  padding:9px 12px;
+}
+
+.empty{
+  text-align:center;
+  padding:50px 20px;
+  background:white;
+  border:1px solid var(--border);
+  border-radius:18px;
+  color:var(--muted);
+}
+
+.loading{
+  text-align:center;
+  padding:40px;
+  color:var(--muted);
+}
+
+.modal-bg{
+  position:fixed;
+  inset:0;
+  background:rgba(5,35,55,.45);
+  backdrop-filter:blur(5px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:100;
+}
+
+.modal-bg.show{
+  display:flex;
+}
+
+.modal{
+  width:100%;
+  max-width:470px;
+  background:white;
+  border-radius:22px;
+  padding:25px;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+}
+
+.modal h2{
+  margin-top:0;
+}
+
+.form-group{
+  margin-bottom:15px;
+}
+
+.form-group label{
+  display:block;
+  font-size:13px;
+  font-weight:800;
+  margin-bottom:7px;
+  color:var(--text);
+}
+
+input{
+  width:100%;
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:13px;
+  font-size:15px;
+  outline:none;
+  background:#faffff;
+}
+
+input:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(24,174,232,.12);
+}
+
+.modal-buttons{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  margin-top:20px;
+}
+
+.user-box{
+  display:none;
+  align-items:center;
+  gap:10px;
+}
+
+.user-email{
+  font-size:13px;
+  color:var(--muted);
+  max-width:210px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+.admin-only{
+  display:none;
+}
+
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:#12324a;
+  color:white;
+  padding:13px 18px;
+  border-radius:12px;
+  opacity:0;
+  pointer-events:none;
+  transition:.25s;
+  z-index:200;
+  font-weight:700;
+}
+
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0);
+}
+
+.toast.error{
+  background:#d93636;
+}
+
+@media(max-width:700px){
+  .nav{
+    padding:14px 15px;
+  }
+
+  .logo{
+    font-size:18px;
+  }
+
+  .user-email{
+    display:none;
+  }
+
+  .hero{
+    margin-top:32px;
+    padding:0 15px;
+  }
+
+  .container{
+    padding:0 15px 50px;
+  }
+
+  .level{
+    grid-template-columns:65px 1fr;
+  }
+
+  .rank{
+    width:65px;
+    height:65px;
+    font-size:22px;
+  }
+
+  .actions{
+    grid-column:1/-1;
+    justify-content:flex-start;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="nav">
+
+    <div class="logo">
+      My <span>Demon List</span>
+    </div>
+
+    <div class="nav-right">
+
+      <div class="user-box" id="userBox">
+        <span class="user-email" id="userEmail"></span>
+        <button class="secondary" id="logoutBtn">Выйти</button>
+      </div>
+
+      <button class="primary" id="loginBtn">
+        Войти
+      </button>
+
+    </div>
+
+  </div>
+</header>
+
+
+<section class="hero">
+  <h1>My <span>Demon List</span></h1>
+  <p>
+    Мой личный рейтинг Geometry Dash уровней.
+  </p>
+</section>
+
+
+<main class="container">
+
+  <div class="toolbar">
+
+    <div>
+      <h2>Top Demons</h2>
+      <div class="status" id="status">
+        Загрузка списка...
+      </div>
+    </div>
+
+    <button class="primary admin-only" id="addBtn">
+      + Добавить уровень
+    </button>
+
+  </div>
+
+
+  <div id="levels" class="levels">
+    <div class="loading">
+      Загрузка...
+    </div>
+  </div>
+
+</main>
+
+
+<!-- LOGIN MODAL -->
+
+<div class="modal-bg" id="loginModal">
+
+  <div class="modal">
+
+    <h2>Вход администратора</h2>
+
+    <p style="color:var(--muted);font-size:14px;">
+      Введи email и пароль от аккаунта Supabase.
+    </p>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input
+        type="email"
+        id="loginEmail"
+        value="arsenijkrasnov882@gmail.com"
+        autocomplete="email"
+      >
+    </div>
+
+    <div class="form-group">
+      <label>Пароль</label>
+      <input
+        type="password"
+        id="loginPassword"
+        autocomplete="current-password"
+      >
+    </div>
+
+    <div class="modal-buttons">
+      <button class="secondary" id="closeLogin">
+        Отмена
+      </button>
+
+      <button class="primary" id="submitLogin">
+        Войти
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- LEVEL MODAL -->
+
+<div class="modal-bg" id="levelModal">
+
+  <div class="modal">
+
+    <h2 id="levelModalTitle">
+      Добавить уровень
+    </h2>
+
+    <div class="form-group">
+      <label>Название</label>
+      <input id="levelName" placeholder="Например: -Sirius-">
+    </div>
+
+    <div class="form-group">
+      <label>Автор</label>
+      <input id="levelAuthor" placeholder="Автор уровня">
+    </div>
+
+    <div class="form-group">
+      <label>Rank</label>
+      <input id="levelRank" type="number" min="1" placeholder="1">
+    </div>
+
+    <div class="form-group">
+      <label>Score / Attempts</label>
+      <input id="levelScore" placeholder="700000 attempts">
+    </div>
+
+    <div class="form-group">
+      <label>Cover URL</label>
+      <input id="levelCover" placeholder="https://...">
+    </div>
+
+    <div class="modal-buttons">
+
+      <button class="secondary" id="closeLevel">
+        Отмена
+      </button>
+
+      <button class="primary" id="saveLevel">
+        Сохранить
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div class="toast" id="toast"></div>
+
+
+<script>
+/* =========================================
+   SUPABASE
+========================================= */
+
+const SUPABASE_URL =
+  "https://jlqddwufeosdszoemdom.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_SlsvVAcxBAbsFVPy8V_xow_0rteDQZa";
+
+const ADMIN_EMAIL =
+  "arsenijkrasnov882@gmail.com";
+
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+/* =========================================
+   ELEMENTS
+========================================= */
+
+const levelsContainer =
+  document.getElementById("levels");
+
+const statusElement =
+  document.getElementById("status");
+
+const loginBtn =
+  document.getElementById("loginBtn");
+
+const logoutBtn =
+  document.getElementById("logoutBtn");
+
+const loginModal =
+  document.getElementById("loginModal");
+
+const levelModal =
+  document.getElementById("levelModal");
+
+const userBox =
+  document.getElementById("userBox");
+
+const userEmail =
+  document.getElementById("userEmail");
+
+const addBtn =
+  document.getElementById("addBtn");
+
+const adminElements =
+  document.querySelectorAll(".admin-only");
+
+let editingId = null;
+
+
+/* =========================================
+   TOAST
+========================================= */
+
+function toast(message, error = false){
+
+  const element =
+    document.getElementById("toast");
+
+  element.textContent = message;
+
+  element.classList.toggle("error", error);
+  element.classList.add("show");
+
+  setTimeout(() => {
+    element.classList.remove("show");
+  }, 3000);
+}
+
+
+/* =========================================
+   AUTH
+========================================= */
+
+async function updateAuthUI(){
+
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  const isAdmin =
+    session &&
+    session.user &&
+    session.user.email === ADMIN_EMAIL;
+
+  if(isAdmin){
+
+    loginBtn.style.display = "none";
+    userBox.style.display = "flex";
+
+    userEmail.textContent =
+      session.user.email;
+
+    adminElements.forEach(el => {
+      el.style.display =
+        el.tagName === "BUTTON"
+          ? "block"
+          : "block";
+    });
+
+  }else{
+
+    loginBtn.style.display = "block";
+    userBox.style.display = "none";
+
+    adminElements.forEach(el => {
+      el.style.display = "none";
+    });
+  }
+}
+
+
+/* =========================================
+   LOGIN
+========================================= */
+
+loginBtn.addEventListener("click", () => {
+
+  loginModal.classList.add("show");
+
+});
+
+
+document
+  .getElementById("closeLogin")
+  .addEventListener("click", () => {
+
+    loginModal.classList.remove("show");
+
+  });
+
+
+document
+  .getElementById("submitLogin")
+  .addEventListener("click", async () => {
+
+    const email =
+      document.getElementById("loginEmail").value.trim();
+
+    const password =
+      document.getElementById("loginPassword").value;
+
+    if(!email || !password){
+
+      toast("Заполни email и пароль", true);
+      return;
+    }
+
+    const {
+      data,
+      error
+    } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if(error){
+
+      toast(error.message, true);
+      return;
+    }
+
+    if(
+      !data.user ||
+      data.user.email !== ADMIN_EMAIL
+    ){
+
+      await supabaseClient.auth.signOut();
+
+      toast(
+        "Этот аккаунт не является администратором.",
+        true
+      );
+
+      return;
+    }
+
+    loginModal.classList.remove("show");
+
+    await updateAuthUI();
+
+    toast("Вы успешно вошли!");
+
+  });
+
+
+/* =========================================
+   LOGOUT
+========================================= */
+
+logoutBtn.addEventListener("click", async () => {
+
+  await supabaseClient.auth.signOut();
+
+  await updateAuthUI();
+
+  toast("Вы вышли из аккаунта.");
+
+});
+
+
+/* =========================================
+   AUTH STATE
+========================================= */
+
+supabaseClient.auth.onAuthStateChange(
+  async () => {
+
+    await updateAuthUI();
+
+  }
+);
+
+
+/* =========================================
+   LOAD LEVELS
+========================================= */
+
+async function loadLevels(){
+
+  levelsContainer.innerHTML =
+    '<div class="loading">Загрузка...</div>';
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("levels")
+    .select("*")
+    .order("rank", {
+      ascending:true
+    });
+
+  if(error){
+
+    console.error(error);
+
+    levelsContainer.innerHTML = `
+      <div class="empty">
+        <h3>Не удалось загрузить список</h3>
+        <p>${escapeHtml(error.message)}</p>
+      </div>
+    `;
+
+    statusElement.textContent =
+      "Ошибка подключения";
+
+    return;
+  }
+
+  statusElement.textContent =
+    `${data.length} уровней`;
+
+  renderLevels(data);
+}
+
+
+/* =========================================
+   RENDER LEVELS
+========================================= */
+
+async function renderLevels(levels){
+
+  if(levels.length === 0){
+
+    levelsContainer.innerHTML = `
+      <div class="empty">
+        <h3>Список пока пуст</h3>
+        <p>Войди как администратор и добавь первый уровень.</p>
+      </div>
+    `;
+
+    return;
+  }
+
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+  const isAdmin =
+    session &&
+    session.user &&
+    session.user.email === ADMIN_EMAIL;
+
+  levelsContainer.innerHTML =
+    levels.map(level => {
+
+      const cover =
+        level.cover_url &&
+        level.cover_url.trim() !== "";
+
+      return `
+        <article class="level">
+
+          <div class="rank">
+
+            ${
+              cover
+              ? `
+                <img
+                  src="${escapeAttribute(level.cover_url)}"
+                  alt=""
+                  onerror="this.style.display='none'"
+                >
+              `
+              : level.rank
+            }
+
+          </div>
+
+          <div class="info">
+
+            <h3>
+              ${escapeHtml(level.name || "Без названия")}
+            </h3>
+
+            <p>
+              by ${escapeHtml(level.author || "Unknown")}
+            </p>
+
+            ${
+              level.score
+              ? `
+                <div class="score">
+                  ${escapeHtml(level.score)}
+                </div>
+              `
+              : ""
+            }
+
+          </div>
+
+          ${
+            isAdmin
+            ? `
+              <div class="actions">
+
+                <button
+                  class="secondary"
+                  onclick="editLevel('${level.id}')"
+                >
+                  Изменить
+                </button>
+
+                <button
+                  class="danger"
+                  onclick="deleteLevel('${level.id}')"
+                >
+                  Удалить
+                </button>
+
+              </div>
+            `
+            : ""
+          }
+
+        </article>
+      `;
+
+    }).join("");
+}
+
+
+/* =========================================
+   ADD LEVEL
+========================================= */
+
+addBtn.addEventListener("click", () => {
+
+  editingId = null;
+
+  document.getElementById("levelModalTitle")
+    .textContent = "Добавить уровень";
+
+  document.getElementById("levelName").value = "";
+  document.getElementById("levelAuthor").value = "";
+  document.getElementById("levelRank").value = "";
+  document.getElementById("levelScore").value = "";
+  document.getElementById("levelCover").value = "";
+
+  levelModal.classList.add("show");
+
+});
+
+
+/* =========================================
+   EDIT LEVEL
+========================================= */
+
+window.editLevel = async function(id){
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("levels")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if(error){
+
+    toast(error.message, true);
+    return;
+  }
+
+  editingId = id;
+
+  document.getElementById("levelModalTitle")
+    .textContent = "Изменить уровень";
+
+  document.getElementById("levelName").value =
+    data.name || "";
+
+  document.getElementById("levelAuthor").value =
+    data.author || "";
+
+  document.getElementById("levelRank").value =
+    data.rank || "";
+
+  document.getElementById("levelScore").value =
+    data.score || "";
+
+  document.getElementById("levelCover").value =
+    data.cover_url || "";
+
+  levelModal.classList.add("show");
+};
+
+
+/* =========================================
+   SAVE LEVEL
+========================================= */
+
+document
+  .getElementById("saveLevel")
+  .addEventListener("click", async () => {
+
+    const name =
+      document.getElementById("levelName").value.trim();
+
+    const author =
+      document.getElementById("levelAuthor").value.trim();
+
+    const rank =
+      Number(document.getElementById("levelRank").value);
+
+    const score =
+      document.getElementById("levelScore").value.trim();
+
+    const cover =
+      document.getElementById("levelCover").value.trim();
+
+
+    if(!name){
+
+      toast("Введите название уровня.", true);
+      return;
+    }
+
+    if(!rank || rank < 1){
+
+      toast("Введите правильный rank.", true);
+      return;
+    }
+
+
+    const {
+      data: { session }
+    } = await supabaseClient.auth.getSession();
+
+
+    if(
+      !session ||
+      session.user.email !== ADMIN_EMAIL
+    ){
+
+      toast(
+        "У тебя нет прав администратора.",
+        true
+      );
+
+      return;
+    }
+
+
+    let error;
+
+
+    if(editingId){
+
+      const result =
+        await supabaseClient
+          .from("levels")
+          .update({
+            name,
+            author,
+            rank,
+            score,
+            cover_url:cover
+          })
+          .eq("id", editingId);
+
+      error = result.error;
+
+    }else{
+
+      const result =
+        await supabaseClient
+          .from("levels")
+          .insert({
+            name,
+            author,
+            rank,
+            score,
+            cover_url:cover
+          });
+
+      error = result.error;
+    }
+
+
+    if(error){
+
+      console.error(error);
+
+      toast(error.message, true);
+      return;
+    }
+
+
+    levelModal.classList.remove("show");
+
+    toast(
+      editingId
+        ? "Уровень изменён!"
+        : "Уровень добавлен!"
+    );
+
+    await loadLevels();
+
+  });
+
+
+/* =========================================
+   DELETE LEVEL
+========================================= */
+
+window.deleteLevel = async function(id){
+
+  if(!confirm(
+    "Ты точно хочешь удалить этот уровень?"
+  )){
+    return;
+  }
+
+
+  const {
+    data: { session }
+  } = await supabaseClient.auth.getSession();
+
+
+  if(
+    !session ||
+    session.user.email !== ADMIN_EMAIL
+  ){
+
+    toast(
+      "У тебя нет прав администратора.",
+      true
+    );
+
+    return;
+  }
+
+
+  const {
+    error
+  } = await supabaseClient
+    .from("levels")
+    .delete()
+    .eq("id", id);
+
+
+  if(error){
+
+    console.error(error);
+
+    toast(error.message, true);
+    return;
+  }
+
+
+  toast("Уровень удалён!");
+
+  await loadLevels();
+};
+
+
+/* =========================================
+   CLOSE MODALS
+========================================= */
+
+document
+  .getElementById("closeLevel")
+  .addEventListener("click", () => {
+
+    levelModal.classList.remove("show");
+
+  });
+
+
+loginModal.addEventListener("click", event => {
+
+  if(event.target === loginModal){
+
+    loginModal.classList.remove("show");
+
+  }
+
+});
+
+
+levelModal.addEventListener("click", event => {
+
+  if(event.target === levelModal){
+
+    levelModal.classList.remove("show");
+
+  }
+
+});
+
+
+/* =========================================
+   SECURITY / HTML ESCAPING
+========================================= */
+
+function escapeHtml(value){
+
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+
+function escapeAttribute(value){
+
+  return String(value)
+    .replace(/"/g,"&quot;")
+    .replace(/</g,"%3C")
+    .replace(/>/g,"%3E");
+}
+
+
+/* =========================================
+   START
+========================================= */
+
+(async function(){
+
+  await updateAuthUI();
+
+  await loadLevels();
+
+})();
+</script>
+
+</body>
+</html>
