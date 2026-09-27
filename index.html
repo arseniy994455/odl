@@ -107,7 +107,7 @@ const defaultLevels=[
 ];
 
 let levels=JSON.parse(localStorage.getItem("MyDemonlist")||"null")||defaultLevels;
-let siteTitle=localStorage.getItem("gdBlueSiteTitle")||"My demon listТвой собственный топ уровней. Добавляй уровни, авторов, очки и обложки.There was an error committing your changes: A file with the same name already exists. Please choose a different name and try again.There was an error committing your changes: A file with the same name already exists. Please choose a different name and try again.";
+let siteTitle=localStorage.getItem("MyDemonlistTitle")||"My demon list Твой собственный топ уровней. Добавляй уровни, авторов, очки и обложки.There was an error committing your changes: A file with the same name already exists. Please choose a different name and try again.There was an error committing your changes: A file with the same name already exists. Please choose a different name and try again.";
 
 function updateSiteTitle(){
  document.querySelector(".logo").innerHTML=escapeHtml(siteTitle);
@@ -132,18 +132,21 @@ async function loadLevels(){
     return;
   }
 
-  if(data && data.length){
-levels = data.map(x => ({
-      id: x.id,
-      name: x.name,
-      author: x.author || "",
-      rank: x.rank,
-      score: x.score || "",
-      cover: x.cover_url || ""
-    }));
-  }
+  levels = (data || []).map(x => ({
+    id: x.id,
+    name: x.name,
+    author: x.author || "",
+    rank: x.rank,
+    score: x.score || "",
+    cover: x.cover_url || ""
+  }));
 
   render();
+}
+
+  document.getElementById("siteTitle").value = siteTitle;
+updateSiteTitle();
+loadLevels();
 }
 function render(){
  const list=document.getElementById("list");
@@ -334,13 +337,32 @@ async function logout(){
 async function logout(){
   await supabaseClient.auth.signOut();
 }
+document.getElementById("siteTitle").value=siteTitle;
+updateSiteTitle();
+loadLevels();
 </script>
 </body>
 
 <div id="loginBox" style="padding:20px;text-align:center;">
-<div id="loginBox" style="padding:20px;text-align:center;">
-  <b>Вход для создателей листа</b>
-  <p>Только для создателей листа</p>
+  <button id="moderatorLoginBtn" onclick="showLogin()">
+     Войти как модератор
+  </button>
+
+  <div id="loginForm" style="display:none;margin-top:15px;">
+    <input id="loginEmail" type="email" placeholder="Email">
+    <input id="loginPassword" type="password" placeholder="Пароль">
+
+    <button onclick="login()">Войти</button>
+    <button onclick="hideLogin()" class="secondary">Отмена</button>
+  </div>
+
+  <div id="moderatorPanel" style="display:none;margin-top:15px;">
+    <b> Режим модератора</b>
+    <button onclick="logout()" class="secondary">Выйти</button>
+  </div>
+
+  <p id="loginStatus"></p>
+</div>
 
   <input id="loginEmail" type="email" placeholder="Email">
   <input id="loginPassword" type="password" placeholder="Пароль">
