@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Geometry Dash — Own Demonlist</title>
+<title>Geometry Dash — My Demon list</title>
 <style>
 :root{
   --blue:#18aee8; --blue2:#087cc2; --light:#eefaff; --white:#fff;
@@ -46,14 +46,14 @@ footer{text-align:center;color:#7894a5;padding:30px}
 <body>
 <header>
   <div class="nav">
-    <div class="logo">GD <span>BLUE TOP</span></div>
+    <div class="logo">GD <span>My demon list</span></div>
     <button class="primary" onclick="document.getElementById('editor').scrollIntoView({behavior:'smooth'})">＋ Добавить уровень</button>
   </div>
 </header>
 
 <section class="hero">
   <h1>Geometry Dash<br><span style="color:#18aee8">Blue Top</span></h1>
-  <p>Твой собственный топ уровней. Добавляй уровни, авторов, очки и обложки.</p>
+  <p>собственный список демонов в Geometry dash</p>
 </section>
 
 <section class="top">
@@ -89,11 +89,11 @@ footer{text-align:center;color:#7894a5;padding:30px}
       <button class="secondary" onclick="saveSiteTitle()">Сохранить название сайта</button>
       <button class="secondary" onclick="resetTop()">Сбросить к исходному топу</button>
     </div>
-    <div class="small">Обложка сохраняется в браузере на этом устройстве. Можно добавлять сколько угодно своих уровней.</div>
+    <div class="small">После добавления в топ уровень сохраняется у всех</div>
   </div>
 </section>
 
-<footer>GD Blue Top • личный рейтинг уровней</footer>
+<footer>My demon list • личный рейтинг уровней</footer>
 
 <script>
 const defaultLevels=[
@@ -103,7 +103,7 @@ const defaultLevels=[
 ];
 
 let levels=JSON.parse(localStorage.getItem("gdBlueTop")||"null")||defaultLevels;
-let siteTitle=localStorage.getItem("gdBlueSiteTitle")||"GD BLUE TOP";
+let siteTitle=localStorage.getItem("gdBlueSiteTitle")||"My demon listТвой собственный топ уровней. Добавляй уровни, авторов, очки и обложки.There was an error committing your changes: A file with the same name already exists. Please choose a different name and try again.There was an error committing your changes: A file with the same name already exists. Please choose a different name and try again.";
 
 function updateSiteTitle(){
  document.querySelector(".logo").innerHTML=escapeHtml(siteTitle);
