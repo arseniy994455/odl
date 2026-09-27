@@ -106,7 +106,7 @@ const defaultLevels=[
  {name:"boobawamba",author:"",rank:3,score:"TOP 3",cover:""}
 ];
 
-let levels=JSON.parse(localStorage.getItem("gdBlueTop")||"null")||defaultLevels;
+let levels=JSON.parse(localStorage.getItem("MyDemonlist")||"null")||defaultLevels;
 let siteTitle=localStorage.getItem("gdBlueSiteTitle")||"My demon listТвой собственный топ уровней. Добавляй уровни, авторов, очки и обложки.There was an error committing your changes: A file with the same name already exists. Please choose a different name and try again.There was an error committing your changes: A file with the same name already exists. Please choose a different name and try again.";
 
 function updateSiteTitle(){
@@ -120,12 +120,12 @@ function saveSiteTitle(){
  localStorage.setItem("gdBlueSiteTitle",siteTitle);
  updateSiteTitle();
 }
-function save(){localStorage.setItem("gdBlueTop",JSON.stringify(levels));render()}
+function save(){localStorage.setItem("MyDemonlist",JSON.stringify(levels));render()}
 async function loadLevels(){
   const { data, error } = await supabaseClient
     .from("levels")
     .select("*")
-    .order("Rank", { ascending: true });
+    .order("rank", { ascending: true });
 
   if(error){
     console.error("Ошибка загрузки уровней:", error);
@@ -136,10 +136,10 @@ async function loadLevels(){
 levels = data.map(x => ({
       id: x.id,
       name: x.name,
-      author: x.Author || "",
-      rank: x.Rank,
+      author: x.author || "",
+      rank: x.rank,
       score: x.score || "",
-      cover: x.Cover_url || ""
+      cover: x.cover_url || ""
     }));
   }
 
@@ -205,16 +205,16 @@ async function addLevel(){
   }
 
   // Сохраняем уровень в таблицу levels
-  const { data, error } = await supabaseClient
-    .from("levels")
-    .insert([{
-      name: name,
-      Author: author,
-      Rank: rank,
-      score: score,
-      Cover_url: coverUrl
-    }])
-    .select();
+const { data, error } = await supabaseClient
+  .from("levels")
+  .insert([{
+    name: name,
+    author: author,
+    rank: rank,
+    score: score,
+    cover_url: coverUrl
+  }])
+  .select();
 
   if(error){
     console.error(error);
@@ -338,6 +338,16 @@ async function logout(){
 </body>
 
 <div id="loginBox" style="padding:20px;text-align:center;">
+<div id="loginBox" style="padding:20px;text-align:center;">
+  <b>Вход для создателей листа</b>
+  <p>Только для создателей листа</p>
+
+  <input id="loginEmail" type="email" placeholder="Email">
+  <input id="loginPassword" type="password" placeholder="Пароль">
+  <button onclick="login()">Войти</button>
+  <button onclick="logout()" style="display:none" id="logoutBtn">Выйти</button>
+  <p id="loginStatus"></p>
+</div>
   <input id="loginEmail" type="email" placeholder="Email">
   <input id="loginPassword" type="password" placeholder="Пароль">
   <button onclick="login()">Войти</button>
