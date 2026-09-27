@@ -270,6 +270,78 @@ const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
+async function login(){
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    document.getElementById("loginStatus").textContent =
+      "Ошибка входа: " + error.message;
+    return;
+  }
+
+  document.getElementById("loginStatus").textContent = "Вход выполнен!";
+}
+
+async function logout(){
+  await supabaseClient.auth.signOut();
+}
+async function login(){
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    document.getElementById("loginStatus").textContent =
+      "Ошибка входа: " + error.message;
+    return;
+  }
+
+  document.getElementById("loginStatus").textContent =
+    "Вход выполнен!";
+}
+
+async function logout(){
+  await supabaseClient.auth.signOut();
+}async function login(){
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  const { error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if(error){
+    document.getElementById("loginStatus").textContent =
+      "Ошибка входа: " + error.message;
+    return;
+  }
+
+  document.getElementById("loginStatus").textContent =
+    "Вход выполнен!";
+}
+
+async function logout(){
+  await supabaseClient.auth.signOut();
+}
 </script>
 </body>
+
+<div id="loginBox" style="padding:20px;text-align:center;">
+  <input id="loginEmail" type="email" placeholder="Email">
+  <input id="loginPassword" type="password" placeholder="Пароль">
+  <button onclick="login()">Войти</button>
+  <button onclick="logout()" style="display:none" id="logoutBtn">Выйти</button>
+  <p id="loginStatus"></p>
+</div>
 </html>
