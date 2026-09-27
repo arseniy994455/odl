@@ -10,8 +10,6 @@
 :root{
   --blue:#18aee8;
   --blue2:#087cc2;
-  --light:#eefaff;
-  --white:#fff;
   --text:#12324a;
   --muted:#6a8799;
   --border:#d9f2fc;
@@ -25,7 +23,7 @@
 body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
-  background:linear-gradient(135deg,#e9faff,#ffffff);
+  background:linear-gradient(135deg,#e9faff,#fff);
   color:var(--text);
 }
 
@@ -33,19 +31,18 @@ header{
   position:sticky;
   top:0;
   z-index:10;
-  background:rgba(255,255,255,.94);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid #d7f1fc;
+  background:rgba(255,255,255,.95);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
 }
 
 .nav{
   max-width:1100px;
   margin:auto;
-  padding:18px 22px;
+  padding:16px 22px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:15px;
 }
 
 .logo{
@@ -57,7 +54,7 @@ header{
 button{
   border:0;
   border-radius:12px;
-  padding:11px 16px;
+  padding:11px 17px;
   font-weight:800;
   cursor:pointer;
 }
@@ -84,8 +81,8 @@ button:active{
 
 .hero h1{
   font-size:clamp(36px,6vw,68px);
-  margin:0 0 8px;
   line-height:1;
+  margin:0 0 10px;
 }
 
 .hero p{
@@ -128,12 +125,12 @@ button:active{
   height:108px;
   object-fit:cover;
   border-radius:14px;
-  background:linear-gradient(135deg,#79ddff,#fff);
   display:block;
+  background:#e9faff;
 }
 
 .info h2{
-  margin:0 0 6px;
+  margin:6px 0;
   font-size:23px;
 }
 
@@ -211,10 +208,7 @@ input:focus{
   font-size:14px;
 }
 
-#moderatorPanel{
-  display:none;
-}
-
+#moderatorPanel,
 #editor{
   display:none;
 }
@@ -269,12 +263,6 @@ label input{
   max-width:240px;
   margin-top:15px;
   border-radius:12px;
-}
-
-.small{
-  margin-top:12px;
-  font-size:13px;
-  color:var(--muted);
 }
 
 footer{
@@ -338,7 +326,7 @@ footer{
 
     <button
       class="secondary"
-      onclick="document.getElementById('loginSection').scrollIntoView({behavior:'smooth'})">
+      onclick="openLogin()">
       Войти
     </button>
 
@@ -350,7 +338,9 @@ footer{
 
   <h1>
     Geometry Dash<br>
-    <span style="color:#18aee8">My Demon List</span>
+    <span style="color:#18aee8">
+      My Demon List
+    </span>
   </h1>
 
   <p>
@@ -362,18 +352,25 @@ footer{
 
 <section class="top">
 
-  <div id="list" class="grid"></div>
+  <div id="list" class="grid">
+    <div class="empty">
+      Загрузка уровней...
+    </div>
+  </div>
 
 </section>
 
 
-<!-- ЕДИНСТВЕННЫЙ ВХОД -->
+<!-- ЕДИНСТВЕННАЯ ФОРМА ВХОДА -->
 
-<section class="login-section" id="loginSection">
+<section
+  class="login-section"
+  id="loginSection"
+  style="display:none;">
 
   <div class="login-box">
 
-    <h2> Вход модератора</h2>
+    <h2>🔐 Вход модератора</h2>
 
     <div id="loginForm">
 
@@ -385,4 +382,603 @@ footer{
           placeholder="Email">
 
         <input
-          id="loginPassword
+          id="loginPassword"
+          type="password"
+          placeholder="Пароль">
+
+        <button
+          class="primary"
+          onclick="login()">
+          Войти
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div id="moderatorPanel">
+
+      <b>🛠️ Вы вошли как модератор</b>
+
+      <br><br>
+
+      <button
+        class="secondary"
+        onclick="logout()">
+        Выйти
+      </button>
+
+    </div>
+
+
+    <div
+      id="loginStatus"
+      class="login-status">
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- РЕДАКТОР -->
+
+<section
+  class="editor"
+  id="editor">
+
+  <div class="panel">
+
+    <h2>Редактор топа</h2>
+
+    <div class="form">
+
+      <label>
+        Название сайта
+        <input
+          id="siteTitle"
+          placeholder="">
+      </label>
+
+
+      <label>
+        Название уровня
+        <input
+          id="name"
+          placeholder="Например: Sirius">
+      </label>
+
+
+      <label>
+        Автор
+        <input
+          id="author"
+          placeholder="Автор уровня">
+      </label>
+
+
+      <label>
+        Позиция
+        <input
+          id="rank"
+          type="number"
+          min="1"
+          placeholder="1">
+      </label>
+
+
+      <label>
+        Очки / сложность
+        <input
+          id="score"
+          placeholder="TOP 1">
+      </label>
+
+
+      <label class="full">
+        Обложка уровня
+        <input
+          id="cover"
+          type="file"
+          accept="image/*">
+      </label>
+
+    </div>
+
+
+    <img
+      id="preview"
+      class="preview"
+      alt="Предпросмотр">
+
+
+    <div class="actions">
+
+      <button
+        class="primary"
+        onclick="addLevel()">
+        Добавить в топ
+      </button>
+
+      <button
+        class="secondary"
+        onclick="saveSiteTitle()">
+        Сохранить название
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<footer>
+  My Demon List
+</footer>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+/* =========================
+   SUPABASE
+========================= */
+
+const SUPABASE_URL =
+  "https://jlqddwufeosdszoemdom.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_SlsvVAcxBAbsFVPy8V_xow_0rteDQZa";
+
+const ADMIN_EMAIL =
+  "arsenijkrasnov882@gmail.com";
+
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+/* =========================
+   СОСТОЯНИЕ
+========================= */
+
+let levels = [];
+
+let siteTitle =
+  localStorage.getItem("gdBlueSiteTitle") || "";
+
+let isModerator = false;
+
+
+/* =========================
+   НАЗВАНИЕ
+========================= */
+
+function updateSiteTitle(){
+
+  const logo =
+    document.getElementById("logo");
+
+  logo.textContent =
+    siteTitle || "My Demon List";
+
+  document.title =
+    siteTitle || "My Demon List";
+}
+
+
+function saveSiteTitle(){
+
+  if(!isModerator){
+
+    alert("Только модератор может менять название.");
+
+    return;
+  }
+
+  const value =
+    document.getElementById("siteTitle")
+      .value
+      .trim();
+
+  if(!value){
+
+    alert("Напиши название сайта.");
+
+    return;
+  }
+
+  siteTitle = value;
+
+  localStorage.setItem(
+    "gdBlueSiteTitle",
+    siteTitle
+  );
+
+  updateSiteTitle();
+
+}
+
+
+/* =========================
+   ESCAPE HTML
+========================= */
+
+function escapeHtml(value){
+
+  return String(value).replace(
+    /[&<>"']/g,
+    function(m){
+
+      return {
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+      }[m];
+
+    }
+  );
+
+}
+
+
+/* =========================
+   ЗАГРУЗКА УРОВНЕЙ
+========================= */
+
+async function loadLevels(){
+
+  const result =
+    await supabaseClient
+      .from("levels")
+      .select("*")
+      .order(
+        "rank",
+        {ascending:true}
+      );
+
+
+  if(result.error){
+
+    console.error(
+      "Ошибка загрузки:",
+      result.error
+    );
+
+    document.getElementById("list").innerHTML =
+      '<div class="empty">Ошибка загрузки уровней.</div>';
+
+    return;
+  }
+
+
+  levels =
+    (result.data || []).map(
+      function(x){
+
+        return {
+
+          id:x.id,
+
+          name:x.name,
+
+          author:x.author || "",
+
+          rank:x.rank,
+
+          score:x.score || "",
+
+          cover:x.cover_url || ""
+
+        };
+
+      }
+    );
+
+
+  render();
+
+}
+
+
+/* =========================
+   ОТОБРАЖЕНИЕ
+========================= */
+
+function render(){
+
+  const list =
+    document.getElementById("list");
+
+  list.innerHTML = "";
+
+
+  levels.sort(
+    function(a,b){
+
+      return Number(a.rank) -
+             Number(b.rank);
+
+    }
+  );
+
+
+  if(!levels.length){
+
+    list.innerHTML =
+      '<div class="empty">Топ пока пуст.</div>';
+
+    return;
+  }
+
+
+  levels.forEach(
+    function(x,i){
+
+      const card =
+        document.createElement("article");
+
+      card.className = "card";
+
+
+      const fallback =
+        "data:image/svg+xml;charset=UTF-8," +
+        encodeURIComponent(
+
+          `<svg xmlns="http://www.w3.org/2000/svg"
+          width="600"
+          height="340">
+
+          <defs>
+
+          <linearGradient id="g">
+
+          <stop stop-color="#79ddff"/>
+
+          <stop offset="1"
+          stop-color="#ffffff"/>
+
+          </linearGradient>
+
+          </defs>
+
+          <rect
+          width="100%"
+          height="100%"
+          fill="url(#g)"/>
+
+          <text
+          x="50%"
+          y="52%"
+          text-anchor="middle"
+          font-family="Arial"
+          font-size="44"
+          font-weight="bold"
+          fill="#087cc2">
+
+          GD • ${escapeHtml(x.name)}
+
+          </text>
+
+          </svg>`
+
+        );
+
+
+      let deleteButton = "";
+
+
+      if(isModerator){
+
+        deleteButton = `
+          <button
+            class="secondary"
+            onclick="removeLevel(${i})">
+            Удалить
+          </button>
+        `;
+
+      }
+
+
+      card.innerHTML = `
+
+        <div class="rank">
+          #${x.rank}
+        </div>
+
+        <img
+          class="cover"
+          src="${x.cover || fallback}"
+          alt="${escapeHtml(x.name)}">
+
+        <div class="info">
+
+          <span class="badge">
+            GEOMETRY DASH
+          </span>
+
+          <h2>
+            ${escapeHtml(x.name)}
+          </h2>
+
+          <p>
+            ${
+              x.author
+              ? "Автор: " +
+                escapeHtml(x.author)
+              : "Автор не указан"
+            }
+          </p>
+
+        </div>
+
+        <div class="score">
+
+          <b>
+            ${escapeHtml(x.score || "—")}
+          </b>
+
+          ${deleteButton}
+
+        </div>
+
+      `;
+
+
+      list.appendChild(card);
+
+    }
+  );
+
+}
+
+
+/* =========================
+   ОТКРЫТЬ ВХОД
+========================= */
+
+function openLogin(){
+
+  const section =
+    document.getElementById(
+      "loginSection"
+    );
+
+  section.style.display =
+    "block";
+
+  section.scrollIntoView({
+    behavior:"smooth"
+  });
+
+}
+
+
+/* =========================
+   ВХОД
+========================= */
+
+async function login(){
+
+  const email =
+    document.getElementById(
+      "loginEmail"
+    ).value.trim();
+
+  const password =
+    document.getElementById(
+      "loginPassword"
+    ).value;
+
+  const status =
+    document.getElementById(
+      "loginStatus"
+    );
+
+
+  if(!email || !password){
+
+    status.textContent =
+      "Введите email и пароль.";
+
+    return;
+  }
+
+
+  if(
+    email.toLowerCase() !==
+    ADMIN_EMAIL.toLowerCase()
+  ){
+
+    status.textContent =
+      "Этот аккаунт не является модератором.";
+
+    return;
+  }
+
+
+  status.textContent =
+    "Выполняется вход...";
+
+
+  const result =
+    await supabaseClient.auth
+      .signInWithPassword({
+
+        email:email,
+
+        password:password
+
+      });
+
+
+  if(result.error){
+
+    console.error(
+      result.error
+    );
+
+    status.textContent =
+      "Ошибка входа: " +
+      result.error.message;
+
+    return;
+  }
+
+
+  status.textContent =
+    "Вход выполнен!";
+
+
+  await updateModeratorUI();
+
+}
+
+
+/* =========================
+   ВЫХОД
+========================= */
+
+async function logout(){
+
+  const result =
+    await supabaseClient.auth
+      .signOut();
+
+
+  if(result.error){
+
+    console.error(
+      result.error
+    );
+
+    return;
+  }
+
+
+  isModerator = false;
+
+
+  document.getElementById(
+    "loginEmail"
+  ).value = "";
+
+  document.getElementById(
+    "loginPassword"
+  ).value = "";
+
+  document.getElementById(
+    "loginStatus"
+  ).textContent = "";
+
+
+  await updateModeratorUI
