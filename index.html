@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Demon List</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
 <style>
 :root{
@@ -159,8 +159,8 @@ button{cursor:pointer}
   <div class="logo">My Demon List</div>
   <div class="header-right">
     <span class="admin-label" id="adminLabel">ADMIN</span>
-    <button class="btn btn-light" id="loginButton" onclick="openLogin()">Войти</button>
-    <button class="btn btn-light" id="logoutButton" onclick="logout()" style="display:none">Выйти</button>
+    <button class="btn btn-light" id="loginButton">Войти</button>
+    <button class="btn btn-light" id="logoutButton" style="display:none">Выйти</button>
   </div>
 </header>
 
@@ -171,7 +171,7 @@ button{cursor:pointer}
   </section>
 
   <div class="top-actions">
-    <button class="btn btn-primary add-button" id="addButton" onclick="openAddModal()" style="display:none">
+    <button class="btn btn-primary add-button" id="addButton" style="display:none">
       + Добавить уровень
     </button>
   </div>
@@ -189,6 +189,7 @@ button{cursor:pointer}
     <h2>Вход администратора</h2>
     <div class="login-info">
       Введите данные администратора Supabase. Пароль хранится только у вас и не показывается сайту.
+      <br><span id="authStatus"></span>
     </div>
 
     <div class="field">
@@ -203,7 +204,7 @@ button{cursor:pointer}
 
     <div class="modal-actions">
       <button class="btn btn-light" onclick="closeLogin()">Отмена</button>
-      <button class="btn btn-primary" id="loginSubmitButton" onclick="login()">Войти</button>
+      <button class="btn btn-primary" id="loginSubmitButton">Войти</button>
     </div>
   </div>
 </div>
@@ -252,7 +253,7 @@ button{cursor:pointer}
 
     <div class="modal-actions">
       <button class="btn btn-light" onclick="closeLevelModal()">Отмена</button>
-      <button class="btn btn-primary" id="saveButton" onclick="saveLevel()">Сохранить</button>
+      <button class="btn btn-primary" id="saveButton">Сохранить</button>
     </div>
   </div>
 </div>
@@ -271,10 +272,28 @@ const SUPABASE_KEY = "sb_publishable_SlsvVAcxBAbsFVPy8V_xow_0rteDQZa";
 const ADMIN_EMAIL = "arsenijkrasnov882@gmail.com";
 const BUCKET_NAME = "covers";
 
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+let supabaseClient = null;
+
+function initSupabase() {
+  if (!window.supabase || typeof window.supabase.createClient !== "function") {
+    console.error("Supabase JS library did not load.");
+    showToast("Не загрузился Supabase. Обновите страницу.");
+    if ($("authStatus")) $("authStatus").textContent = "Supabase JS не загрузился.";
+    return false;
+  }
+
+  try {
+    supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+    return true;
+  } catch (error) {
+    console.error("Supabase init error:", error);
+    showToast("Ошибка запуска Supabase.");
+    return false;
+  }
+}
 
 /* =========================
    STATE
@@ -402,13 +421,17 @@ async function updateAuthUI(userFromEvent = null) {
   Do not call async Supabase functions directly inside
   onAuthStateChange. A delayed call prevents auth deadlocks.
 */
-supabaseClient.auth.onAuthStateChange((event, session) => {
-  currentUser = session ? session.user : null;
+function installAuthListener() {
+  if (!supabaseClient) return;
 
-  setTimeout(() => {
-    updateAuthUI(currentUser);
-  }, 0);
-});
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    currentUser = session ? session.user : null;
+
+    setTimeout(() => {
+      updateAuthUI(currentUser);
+    }, 0);
+  });
+}
 
 /* =========================
    LOGIN
@@ -898,6 +921,22 @@ document.addEventListener("keydown", event => {
    ========================= */
 
 document.addEventListener("DOMContentLoaded", async () => {
+  // First make sure the Supabase library and client exist.
+  if (!initSupabase()) {
+    $("levels").innerHTML =
+      '<div class="empty">Supabase не загрузился.<br><small>Проверь интернет и обнови страницу.</small></div>';
+    return;
+  }
+
+  installAuthListener();
+
+  // Explicit listeners make the buttons work even if inline handlers are restricted.
+  $("loginButton").addEventListener("click", openLogin);
+  $("logoutButton").addEventListener("click", logout);
+  $("loginSubmitButton").addEventListener("click", login);
+  $("addButton").addEventListener("click", openAddModal);
+  $("saveButton").addEventListener("click", saveLevel);
+
   await updateAuthUI();
   await loadLevels();
 });
