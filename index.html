@@ -3,526 +3,904 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>My Demon List</title>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root {
-    --blue: #18aee8;
-    --blue2: #087cc2;
-    --light: #eefaff;
-    --white: #ffffff;
-    --text: #12324a;
-    --muted: #6a8799;
-    --border: #d9f2fc;
-    --danger: #ef5350;
-    --shadow: 0 10px 30px rgba(8,124,194,0.12);
+:root{
+  --blue:#18aee8;
+  --blue2:#087cc2;
+  --light:#eefaff;
+  --white:#fff;
+  --text:#12324a;
+  --muted:#6a8799;
+  --border:#d9f2fc;
+  --danger:#ef5350;
+  --success:#169447;
+  --shadow:0 10px 30px rgba(8,124,194,.12);
 }
-
-* {
-    box-sizing: border-box;
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:linear-gradient(180deg,#eefaff 0%,#fff 55%);
+  color:var(--text);
 }
-
-body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background: linear-gradient(180deg, #eefaff 0%, #ffffff 55%);
-    color: var(--text);
+button,input{font:inherit}
+button{cursor:pointer}
+.header{
+  height:72px;
+  background:rgba(255,255,255,.96);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 6%;
+  position:sticky;
+  top:0;
+  z-index:20;
+  backdrop-filter:blur(10px);
 }
-
-button,
-input {
-    font: inherit;
+.logo{font-size:24px;font-weight:800;color:var(--blue2)}
+.header-right{display:flex;align-items:center;gap:10px}
+.admin-label{
+  display:none;
+  color:var(--blue2);
+  font-size:13px;
+  font-weight:800;
+  padding:7px 10px;
+  border-radius:9px;
+  background:var(--light);
 }
-
-button {
-    cursor: pointer;
+.container{width:min(1100px,92%);margin:auto}
+.hero{text-align:center;padding:55px 15px 35px}
+.hero h1{
+  margin:0;
+  font-size:clamp(36px,7vw,64px);
+  font-weight:900;
+  color:var(--blue2);
 }
-
-.header {
-    height: 72px;
-    background: rgba(255,255,255,0.95);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 6%;
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    backdrop-filter: blur(10px);
+.hero p{margin:12px 0 0;color:var(--muted);font-size:16px}
+.top-actions{display:flex;justify-content:center;margin-bottom:25px}
+.levels{display:flex;flex-direction:column;gap:12px;padding-bottom:60px}
+.level{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:18px;
+  min-height:100px;
+  display:grid;
+  grid-template-columns:95px 1fr auto;
+  align-items:center;
+  gap:18px;
+  padding:12px 20px 12px 12px;
+  box-shadow:var(--shadow);
+  transition:.2s ease;
 }
-
-.logo {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--blue2);
+.level:hover{transform:translateY(-2px);box-shadow:0 15px 35px rgba(8,124,194,.16)}
+.rank{
+  width:80px;height:76px;border-radius:14px;
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:27px;font-weight:900;overflow:hidden;
 }
-
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+.rank img{width:100%;height:100%;object-fit:cover}
+.level-info{min-width:0}
+.level-name{font-size:22px;font-weight:800;color:var(--text);word-break:break-word}
+.level-author{margin-top:5px;color:var(--muted);font-size:14px}
+.level-score{margin-top:7px;color:var(--blue2);font-size:14px;font-weight:700}
+.level-actions{display:none;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.admin-mode .level-actions{display:flex}
+.btn{
+  border:none;border-radius:11px;padding:10px 15px;font-weight:700;
+  transition:.15s ease;
 }
-
-.admin-label {
-    display: none;
-    color: var(--blue2);
-    font-size: 13px;
-    font-weight: 700;
+.btn:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
+.btn-light{background:var(--light);color:var(--blue2);border:1px solid var(--border)}
+.btn-danger{background:#fff0f0;color:var(--danger);border:1px solid #ffd2d2}
+.add-button{padding:13px 22px;border-radius:13px;font-size:15px}
+.empty{
+  background:#fff;border:1px dashed var(--border);border-radius:18px;
+  padding:40px 20px;text-align:center;color:var(--muted)
 }
-
-.container {
-    width: min(1100px, 92%);
-    margin: auto;
+.loading{text-align:center;color:var(--muted);padding:40px}
+.modal-bg{
+  position:fixed;inset:0;background:rgba(7,40,60,.45);
+  display:none;align-items:center;justify-content:center;padding:20px;z-index:100
 }
-
-.hero {
-    text-align: center;
-    padding: 55px 15px 35px;
+.modal-bg.show{display:flex}
+.modal{
+  width:min(480px,100%);background:#fff;border-radius:20px;padding:25px;
+  box-shadow:0 25px 70px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto
 }
-
-.hero h1 {
-    margin: 0;
-    font-size: clamp(36px, 7vw, 64px);
-    font-weight: 900;
-    color: var(--blue2);
+.modal h2{margin:0 0 20px;color:var(--blue2)}
+.field{margin-bottom:15px}
+.field label{display:block;margin-bottom:7px;font-size:13px;font-weight:700}
+.field input{
+  width:100%;border:1px solid var(--border);border-radius:11px;padding:12px;
+  outline:none;color:var(--text);background:#fbfeff
 }
-
-.hero p {
-    margin: 12px 0 0;
-    color: var(--muted);
-    font-size: 16px;
+.field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,174,232,.12)}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
+.upload-box{
+  border:2px dashed var(--border);border-radius:14px;padding:16px;
+  text-align:center;background:#f8fdff
 }
-
-.top-actions {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 25px;
+.upload-box input{border:none;padding:5px;background:transparent}
+.preview{display:none;margin-top:12px}
+.preview img{width:100%;max-height:220px;object-fit:cover;border-radius:12px}
+.upload-status{margin-top:8px;font-size:13px;color:var(--muted)}
+.error{color:var(--danger)}
+.success{color:var(--success)}
+.login-info{color:var(--muted);font-size:13px;line-height:1.5;margin-bottom:15px}
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#12324a;color:#fff;padding:12px 18px;border-radius:12px;opacity:0;
+  pointer-events:none;transition:.25s ease;z-index:300;max-width:92%;text-align:center
 }
-
-.levels {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding-bottom: 60px;
-}
-
-.level {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    min-height: 100px;
-    display: grid;
-    grid-template-columns: 95px 1fr auto;
-    align-items: center;
-    gap: 18px;
-    padding: 12px 20px 12px 12px;
-    box-shadow: var(--shadow);
-    transition: 0.2s ease;
-}
-
-.level:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 15px 35px rgba(8,124,194,0.16);
-}
-
-.rank {
-    width: 80px;
-    height: 76px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--blue), var(--blue2));
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 27px;
-    font-weight: 900;
-    overflow: hidden;
-}
-
-.rank img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.level-info {
-    min-width: 0;
-}
-
-.level-name {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--text);
-    word-break: break-word;
-}
-
-.level-author {
-    margin-top: 5px;
-    color: var(--muted);
-    font-size: 14px;
-}
-
-.level-score {
-    margin-top: 7px;
-    color: var(--blue2);
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.level-actions {
-    display: none;
-    gap: 7px;
-}
-
-.admin-mode .level-actions {
-    display: flex;
-}
-
-.btn {
-    border: none;
-    border-radius: 11px;
-    padding: 10px 15px;
-    font-weight: 700;
-    transition: 0.15s ease;
-}
-
-.btn:hover {
-    transform: translateY(-1px);
-}
-
-.btn-primary {
-    background: linear-gradient(135deg, var(--blue), var(--blue2));
-    color: white;
-}
-
-.btn-light {
-    background: var(--light);
-    color: var(--blue2);
-    border: 1px solid var(--border);
-}
-
-.btn-danger {
-    background: #fff0f0;
-    color: var(--danger);
-    border: 1px solid #ffd2d2;
-}
-
-.add-button {
-    padding: 13px 22px;
-    border-radius: 13px;
-    font-size: 15px;
-}
-
-.empty {
-    background: white;
-    border: 1px dashed var(--border);
-    border-radius: 18px;
-    padding: 40px 20px;
-    text-align: center;
-    color: var(--muted);
-}
-
-.loading {
-    text-align: center;
-    color: var(--muted);
-    padding: 40px;
-}
-
-.modal-bg {
-    position: fixed;
-    inset: 0;
-    background: rgba(7,40,60,0.45);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    z-index: 100;
-}
-
-.modal-bg.show {
-    display: flex;
-}
-
-.modal {
-    width: min(480px, 100%);
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 25px 70px rgba(0,0,0,0.2);
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-.modal h2 {
-    margin: 0 0 20px;
-    color: var(--blue2);
-}
-
-.field {
-    margin-bottom: 15px;
-}
-
-.field label {
-    display: block;
-    margin-bottom: 7px;
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--text);
-}
-
-.field input {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: 11px;
-    padding: 12px;
-    outline: none;
-    color: var(--text);
-    background: #fbfeff;
-}
-
-.field input:focus {
-    border-color: var(--blue);
-    box-shadow: 0 0 0 3px rgba(24,174,232,0.12);
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-    margin-top: 20px;
-}
-
-.upload-box {
-    border: 2px dashed var(--border);
-    border-radius: 14px;
-    padding: 16px;
-    text-align: center;
-    background: #f8fdff;
-}
-
-.upload-box input {
-    border: none;
-    padding: 5px;
-    background: transparent;
-}
-
-.preview {
-    display: none;
-    margin-top: 12px;
-}
-
-.preview img {
-    width: 100%;
-    max-height: 220px;
-    object-fit: cover;
-    border-radius: 12px;
-}
-
-.upload-status {
-    margin-top: 8px;
-    font-size: 13px;
-    color: var(--muted);
-}
-
-.error {
-    color: var(--danger);
-}
-
-.success {
-    color: #169447;
-}
-
-.login-info {
-    color: var(--muted);
-    font-size: 13px;
-    line-height: 1.5;
-    margin-bottom: 15px;
-}
-
-.toast {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: #12324a;
-    color: white;
-    padding: 12px 18px;
-    border-radius: 12px;
-    opacity: 0;
-    pointer-events: none;
-    transition: 0.25s ease;
-    z-index: 300;
-    max-width: 90%;
-    text-align: center;
-}
-
-.toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-}
-
-@media (max-width: 700px) {
-    .header {
-        padding: 0 4%;
-    }
-
-    .logo {
-        font-size: 20px;
-    }
-
-    .level {
-        grid-template-columns: 70px 1fr;
-        gap: 12px;
-        padding: 10px;
-    }
-
-    .rank {
-        width: 65px;
-        height: 65px;
-        font-size: 21px;
-    }
-
-    .level-name {
-        font-size: 18px;
-    }
-
-    .level-actions {
-        grid-column: 1 / -1;
-        justify-content: flex-end;
-    }
-
-    .admin-label {
-        display: none !important;
-    }
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.footer{padding:0 0 35px;text-align:center;color:var(--muted);font-size:13px}
+@media(max-width:700px){
+  .header{padding:0 4%}
+  .logo{font-size:20px}
+  .level{grid-template-columns:70px 1fr;gap:12px;padding:10px}
+  .rank{width:65px;height:65px;font-size:21px}
+  .level-name{font-size:18px}
+  .level-actions{grid-column:1/-1}
+  .admin-label{display:none!important}
 }
 </style>
 </head>
 
 <body>
-
 <header class="header">
-    <div class="logo">My Demon List</div>
-
-    <div class="header-right">
-        <span class="admin-label" id="adminLabel">ADMIN</span>
-
-        <button class="btn btn-light" id="loginButton" onclick="openLogin()">
-            Войти
-        </button>
-
-        <button class="btn btn-light" id="logoutButton" onclick="logout()" style="display:none;">
-            Выйти
-        </button>
-    </div>
+  <div class="logo">My Demon List</div>
+  <div class="header-right">
+    <span class="admin-label" id="adminLabel">ADMIN</span>
+    <button class="btn btn-light" id="loginButton" onclick="openLogin()">Войти</button>
+    <button class="btn btn-light" id="logoutButton" onclick="logout()" style="display:none">Выйти</button>
+  </div>
 </header>
 
 <main class="container">
+  <section class="hero">
+    <h1>My Demon List</h1>
+    <p>Personal Geometry Dash Demon List</p>
+  </section>
 
-    <section class="hero">
-        <h1>My Demon List</h1>
-        <p>Personal Geometry Dash Demon List</p>
-    </section>
+  <div class="top-actions">
+    <button class="btn btn-primary add-button" id="addButton" onclick="openAddModal()" style="display:none">
+      + Добавить уровень
+    </button>
+  </div>
 
-    <div class="top-actions">
-        <button
-            class="btn btn-primary add-button"
-            id="addButton"
-            onclick="openAddModal()"
-            style="display:none;"
-        >
-            + Добавить уровень
-        </button>
-    </div>
+  <section id="levels" class="levels">
+    <div class="loading">Загрузка уровней...</div>
+  </section>
 
-    <section id="levels" class="levels">
-        <div class="loading">Загрузка уровней...</div>
-    </section>
-
+  <div class="footer">My Demon List • Geometry Dash</div>
 </main>
 
-
-<!-- LOGIN MODAL -->
+<!-- LOGIN -->
 <div class="modal-bg" id="loginModal">
-    <div class="modal">
-
-        <h2>Вход администратора</h2>
-
-        <div class="login-info">
-            Войдите, чтобы добавлять, редактировать и удалять уровни.
-        </div>
-
-        <div class="field">
-            <label>Email</label>
-            <input
-                type="email"
-                id="loginEmail"
-                placeholder="Email"
-                autocomplete="email"
-            >
-        </div>
-
-        <div class="field">
-            <label>Пароль</label>
-            <input
-                type="password"
-                id="loginPassword"
-                placeholder="Пароль"
-                autocomplete="current-password"
-            >
-        </div>
-
-        <div class="modal-actions">
-            <button class="btn btn-light" onclick="closeLogin()">
-                Отмена
-            </button>
-
-            <button class="btn btn-primary" onclick="login()">
-                Войти
-            </button>
-        </div>
-
+  <div class="modal">
+    <h2>Вход администратора</h2>
+    <div class="login-info">
+      Введите данные администратора Supabase. Пароль хранится только у вас и не показывается сайту.
     </div>
+
+    <div class="field">
+      <label for="loginEmail">Email</label>
+      <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
+    </div>
+
+    <div class="field">
+      <label for="loginPassword">Пароль</label>
+      <input type="password" id="loginPassword" placeholder="Пароль" autocomplete="current-password">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-light" onclick="closeLogin()">Отмена</button>
+      <button class="btn btn-primary" id="loginSubmitButton" onclick="login()">Войти</button>
+    </div>
+  </div>
 </div>
 
-
-<!-- LEVEL MODAL -->
+<!-- LEVEL -->
 <div class="modal-bg" id="levelModal">
-    <div class="modal">
+  <div class="modal">
+    <h2 id="levelModalTitle">Добавить уровень</h2>
+    <input type="hidden" id="editId">
 
-        <h2 id="levelModalTitle">Добавить уровень</h2>
+    <div class="field">
+      <label for="levelName">Название уровня</label>
+      <input type="text" id="levelName" placeholder="Например: -Sirius-">
+    </div>
 
-        <input type="hidden" id="editId">
+    <div class="field">
+      <label for="levelAuthor">Автор</label>
+      <input type="text" id="levelAuthor" placeholder="Автор уровня">
+    </div>
 
-        <div class="field">
-            <label>Название уровня</label>
-            <input
-                type="text"
-                id="levelName"
-                placeholder="Например: -Sirius-"
-            >
+    <div class="field">
+      <label for="levelRank">Rank</label>
+      <input type="number" id="levelRank" placeholder="1" min="1">
+    </div>
+
+    <div class="field">
+      <label for="levelScore">Attempts / Score</label>
+      <input type="text" id="levelScore" placeholder="700000 attempts">
+    </div>
+
+    <div class="field">
+      <label>Обложка</label>
+      <div class="upload-box">
+        <input type="file" id="coverFile" accept="image/*">
+        <div class="upload-status" id="uploadStatus">Можно загрузить изображение или оставить без него.</div>
+        <div class="preview" id="coverPreview">
+          <img id="previewImage" alt="Preview">
+        </div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="coverUrl">Или URL обложки</label>
+      <input type="url" id="coverUrl" placeholder="https://...">
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-light" onclick="closeLevelModal()">Отмена</button>
+      <button class="btn btn-primary" id="saveButton" onclick="saveLevel()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* =========================
+   SUPABASE CONFIG
+   ========================= */
+
+const SUPABASE_URL = "https://jlqddwufeosdszoemdom.supabase.co";
+const SUPABASE_KEY = "sb_publishable_SlsvVAcxBAbsFVPy8V_xow_0rteDQZa";
+const ADMIN_EMAIL = "arsenijkrasnov882@gmail.com";
+const BUCKET_NAME = "covers";
+
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+/* =========================
+   STATE
+   ========================= */
+
+let currentUser = null;
+let selectedCoverFile = null;
+let levelsCache = [];
+
+/* =========================
+   DEFAULT DISPLAY LEVELS
+   Used only if DB has no rows.
+   ========================= */
+
+const DEFAULT_LEVELS = [
+  {
+    id: "default-1",
+    name: "-Sirius-",
+    author: "Unknown",
+    rank: 1,
+    score: "",
+    cover_url: ""
+  },
+  {
+    id: "default-2",
+    name: "revolver",
+    author: "Unknown",
+    rank: 2,
+    score: "",
+    cover_url: ""
+  },
+  {
+    id: "default-3",
+    name: "boobawamba",
+    author: "Unknown",
+    rank: 3,
+    score: "",
+    cover_url: ""
+  }
+];
+
+/* =========================
+   HELPERS
+   ========================= */
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function isAdmin() {
+  return !!(
+    currentUser &&
+    currentUser.email &&
+    currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()
+  );
+}
+
+function showToast(message) {
+  const toast = $("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3500);
+}
+
+/* =========================
+   AUTH UI
+   ========================= */
+
+async function updateAuthUI(userFromEvent = null) {
+  try {
+    if (userFromEvent !== null) {
+      currentUser = userFromEvent;
+    } else {
+      const { data, error } = await supabaseClient.auth.getUser();
+
+      if (error) {
+        console.warn("getUser:", error.message);
+        currentUser = null;
+      } else {
+        currentUser = data.user;
+      }
+    }
+  } catch (error) {
+    console.error("updateAuthUI:", error);
+    currentUser = null;
+  }
+
+  const loginButton = $("loginButton");
+  const logoutButton = $("logoutButton");
+  const addButton = $("addButton");
+  const adminLabel = $("adminLabel");
+
+  if (isAdmin()) {
+    document.body.classList.add("admin-mode");
+
+    loginButton.style.display = "none";
+    logoutButton.style.display = "block";
+    addButton.style.display = "block";
+    adminLabel.style.display = "inline-block";
+  } else {
+    document.body.classList.remove("admin-mode");
+
+    loginButton.style.display = "block";
+    logoutButton.style.display = "none";
+    addButton.style.display = "none";
+    adminLabel.style.display = "none";
+  }
+}
+
+/*
+  IMPORTANT:
+  Do not call async Supabase functions directly inside
+  onAuthStateChange. A delayed call prevents auth deadlocks.
+*/
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  currentUser = session ? session.user : null;
+
+  setTimeout(() => {
+    updateAuthUI(currentUser);
+  }, 0);
+});
+
+/* =========================
+   LOGIN
+   ========================= */
+
+function openLogin() {
+  $("loginModal").classList.add("show");
+  $("loginEmail").focus();
+}
+
+function closeLogin() {
+  $("loginModal").classList.remove("show");
+}
+
+async function login() {
+  const email = $("loginEmail").value.trim();
+  const password = $("loginPassword").value;
+  const button = $("loginSubmitButton");
+
+  if (!email || !password) {
+    showToast("Введите email и пароль.");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Вход...";
+
+  try {
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+    console.log("Supabase login:", { data, error });
+
+    if (error) {
+      console.error("Supabase login error:", error);
+
+      const message = error.message || "Неизвестная ошибка.";
+
+      if (message.toLowerCase().includes("email not confirmed")) {
+        showToast("Email не подтверждён в Supabase.");
+      } else if (message.toLowerCase().includes("invalid login credentials")) {
+        showToast("Неверный email или пароль.");
+      } else {
+        showToast("Ошибка входа: " + message);
+      }
+
+      return;
+    }
+
+    if (!data || !data.user) {
+      showToast("Supabase не вернул пользователя.");
+      return;
+    }
+
+    currentUser = data.user;
+
+    if (
+      !currentUser.email ||
+      currentUser.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()
+    ) {
+      await supabaseClient.auth.signOut();
+      currentUser = null;
+      await updateAuthUI();
+      showToast("Этот аккаунт не является администратором.");
+      return;
+    }
+
+    closeLogin();
+    await updateAuthUI(currentUser);
+    showToast("Вход выполнен!");
+    await loadLevels();
+
+  } catch (error) {
+    console.error("LOGIN CRASH:", error);
+    showToast("Ошибка JavaScript: " + (error.message || error));
+  } finally {
+    button.disabled = false;
+    button.textContent = "Войти";
+  }
+}
+
+async function logout() {
+  try {
+    const { error } = await supabaseClient.auth.signOut();
+
+    if (error) {
+      showToast("Ошибка выхода: " + error.message);
+      return;
+    }
+
+    currentUser = null;
+    await updateAuthUI(null);
+    showToast("Вы вышли из аккаунта.");
+  } catch (error) {
+    console.error("logout:", error);
+    showToast("Ошибка выхода.");
+  }
+}
+
+/* =========================
+   LOAD LEVELS
+   ========================= */
+
+async function loadLevels() {
+  const container = $("levels");
+  container.innerHTML = '<div class="loading">Загрузка уровней...</div>';
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("levels")
+      .select("*")
+      .order("rank", { ascending: true });
+
+    if (error) {
+      console.error("Load levels error:", error);
+      container.innerHTML =
+        '<div class="empty">Не удалось загрузить уровни.<br><small>' +
+        escapeHtml(error.message) +
+        "</small></div>";
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      levelsCache = DEFAULT_LEVELS;
+      renderLevels(DEFAULT_LEVELS, true);
+      return;
+    }
+
+    levelsCache = data;
+    renderLevels(data, false);
+
+  } catch (error) {
+    console.error("loadLevels:", error);
+    container.innerHTML =
+      '<div class="empty">Ошибка загрузки уровней.</div>';
+  }
+}
+
+/* =========================
+   RENDER
+   ========================= */
+
+function renderLevels(levels, defaultsOnly) {
+  const container = $("levels");
+
+  if (!levels || levels.length === 0) {
+    container.innerHTML =
+      '<div class="empty">Пока нет уровней.</div>';
+    return;
+  }
+
+  container.innerHTML = levels.map(level => {
+    const image = level.cover_url
+      ? '<img src="' + escapeHtml(level.cover_url) + '" alt="" onerror="this.style.display=\'none\'">'
+      : "";
+
+    const score = level.score
+      ? '<div class="level-score">' + escapeHtml(level.score) + "</div>"
+      : "";
+
+    const adminButtons = defaultsOnly
+      ? ""
+      : `
+        <div class="level-actions">
+          <button class="btn btn-light" onclick="openEditModal('${escapeHtml(level.id)}')">
+            Изменить
+          </button>
+          <button class="btn btn-danger" onclick="deleteLevel('${escapeHtml(level.id)}')">
+            Удалить
+          </button>
+        </div>
+      `;
+
+    return `
+      <article class="level">
+        <div class="rank">
+          ${image || escapeHtml(level.rank)}
         </div>
 
-        <div class="field">
-            <label>Автор</label>
-            <input
-                type="text"
-                id="levelAuthor"
-                placeholder="Автор уровня"
-            >
+        <div class="level-info">
+          <div class="level-name">${escapeHtml(level.name)}</div>
+          <div class="level-author">by ${escapeHtml(level.author || "Unknown")}</div>
+          ${score}
         </div>
 
-        <div class="field">
-            <label>Rank</label>
-            <input
-                type="number"
-                id="levelRank"
-                placeholder="1"
-                min="1"
-            >
-        </div>
+        ${adminButtons}
+      </article>
+    `;
+  }).join("");
+}
 
-        <
+/* =========================
+   LEVEL MODAL
+   ========================= */
+
+function openAddModal() {
+  if (!isAdmin()) {
+    showToast("Сначала войдите как администратор.");
+    return;
+  }
+
+  $("levelModalTitle").textContent = "Добавить уровень";
+  $("editId").value = "";
+  $("levelName").value = "";
+  $("levelAuthor").value = "";
+  $("levelRank").value = "";
+  $("levelScore").value = "";
+  $("coverUrl").value = "";
+  $("coverFile").value = "";
+  $("coverPreview").style.display = "none";
+  $("uploadStatus").textContent =
+    "Можно загрузить изображение или оставить без него.";
+  selectedCoverFile = null;
+
+  $("levelModal").classList.add("show");
+  $("levelName").focus();
+}
+
+function openEditModal(id) {
+  if (!isAdmin()) {
+    showToast("Сначала войдите как администратор.");
+    return;
+  }
+
+  const level = levelsCache.find(item => String(item.id) === String(id));
+
+  if (!level) {
+    showToast("Уровень не найден.");
+    return;
+  }
+
+  $("levelModalTitle").textContent = "Редактировать уровень";
+  $("editId").value = level.id;
+  $("levelName").value = level.name || "";
+  $("levelAuthor").value = level.author || "";
+  $("levelRank").value = level.rank || "";
+  $("levelScore").value = level.score || "";
+  $("coverUrl").value = level.cover_url || "";
+  $("coverFile").value = "";
+  selectedCoverFile = null;
+
+  if (level.cover_url) {
+    $("previewImage").src = level.cover_url;
+    $("coverPreview").style.display = "block";
+  } else {
+    $("coverPreview").style.display = "none";
+  }
+
+  $("uploadStatus").textContent =
+    "Выберите новый файл только если хотите заменить обложку.";
+
+  $("levelModal").classList.add("show");
+}
+
+function closeLevelModal() {
+  $("levelModal").classList.remove("show");
+  selectedCoverFile = null;
+}
+
+$("coverFile").addEventListener("change", event => {
+  const file = event.target.files[0];
+
+  if (!file) {
+    selectedCoverFile = null;
+    return;
+  }
+
+  selectedCoverFile = file;
+
+  if (!file.type.startsWith("image/")) {
+    selectedCoverFile = null;
+    event.target.value = "";
+    showToast("Выберите изображение.");
+    return;
+  }
+
+  const url = URL.createObjectURL(file);
+  $("previewImage").src = url;
+  $("coverPreview").style.display = "block";
+  $("uploadStatus").textContent = file.name;
+});
+
+/* =========================
+   COVER UPLOAD
+   ========================= */
+
+async function uploadCover(file) {
+  if (!file) return null;
+
+  const safeName = file.name
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]/g, "-");
+
+  const path =
+    "covers/" +
+    Date.now() +
+    "-" +
+    Math.random().toString(36).slice(2, 10) +
+    "-" +
+    safeName;
+
+  const { error: uploadError } =
+    await supabaseClient.storage
+      .from(BUCKET_NAME)
+      .upload(path, file, {
+        cacheControl: "3600",
+        upsert: false
+      });
+
+  if (uploadError) {
+    throw uploadError;
+  }
+
+  const { data } =
+    supabaseClient.storage
+      .from(BUCKET_NAME)
+      .getPublicUrl(path);
+
+  return data.publicUrl;
+}
+
+/* =========================
+   SAVE LEVEL
+   ========================= */
+
+async function saveLevel() {
+  if (!isAdmin()) {
+    showToast("Нет доступа администратора.");
+    return;
+  }
+
+  const name = $("levelName").value.trim();
+  const author = $("levelAuthor").value.trim();
+  const rank = Number.parseInt($("levelRank").value, 10);
+  const score = $("levelScore").value.trim();
+  const editId = $("editId").value;
+  const typedCoverUrl = $("coverUrl").value.trim();
+  const button = $("saveButton");
+
+  if (!name) {
+    showToast("Введите название уровня.");
+    return;
+  }
+
+  if (!author) {
+    showToast("Введите автора.");
+    return;
+  }
+
+  if (!Number.isInteger(rank) || rank < 1) {
+    showToast("Rank должен быть целым числом от 1.");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Сохранение...";
+
+  try {
+    let coverUrl = typedCoverUrl || null;
+
+    if (selectedCoverFile) {
+      $("uploadStatus").textContent = "Загрузка обложки...";
+      coverUrl = await uploadCover(selectedCoverFile);
+    }
+
+    const payload = {
+      name,
+      author,
+      rank,
+      score: score || null,
+      cover_url: coverUrl
+    };
+
+    let result;
+
+    if (editId) {
+      result = await supabaseClient
+        .from("levels")
+        .update(payload)
+        .eq("id", editId);
+    } else {
+      result = await supabaseClient
+        .from("levels")
+        .insert(payload);
+    }
+
+    if (result.error) {
+      console.error("Save level error:", result.error);
+      showToast("Ошибка сохранения: " + result.error.message);
+      return;
+    }
+
+    closeLevelModal();
+    showToast(editId ? "Уровень изменён!" : "Уровень добавлен!");
+    await loadLevels();
+
+  } catch (error) {
+    console.error("saveLevel:", error);
+    showToast("Ошибка: " + (error.message || error));
+  } finally {
+    button.disabled = false;
+    button.textContent = "Сохранить";
+  }
+}
+
+/* =========================
+   DELETE LEVEL
+   ========================= */
+
+async function deleteLevel(id) {
+  if (!isAdmin()) {
+    showToast("Нет доступа администратора.");
+    return;
+  }
+
+  const level = levelsCache.find(item => String(item.id) === String(id));
+
+  if (!level) {
+    showToast("Уровень не найден.");
+    return;
+  }
+
+  const confirmed = confirm(
+    'Удалить уровень "' + level.name + '"?'
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const { error } = await supabaseClient
+      .from("levels")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Delete level error:", error);
+      showToast("Ошибка удаления: " + error.message);
+      return;
+    }
+
+    showToast("Уровень удалён.");
+    await loadLevels();
+
+  } catch (error) {
+    console.error("deleteLevel:", error);
+    showToast("Ошибка удаления.");
+  }
+}
+
+/* =========================
+   MODAL CLICK / ESC
+   ========================= */
+
+$("loginModal").addEventListener("click", event => {
+  if (event.target === $("loginModal")) {
+    closeLogin();
+  }
+});
+
+$("levelModal").addEventListener("click", event => {
+  if (event.target === $("levelModal")) {
+    closeLevelModal();
+  }
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    closeLogin();
+    closeLevelModal();
+  }
+
+  if (
+    event.key === "Enter" &&
+    $("loginModal").classList.contains("show") &&
+    document.activeElement !== $("loginPassword") &&
+    document.activeElement !== $("loginEmail")
+  ) {
+    login();
+  }
+});
+
+/* =========================
+   START
+   ========================= */
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await updateAuthUI();
+  await loadLevels();
+});
+</script>
+</body>
+</html>
