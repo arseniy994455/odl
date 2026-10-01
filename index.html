@@ -142,6 +142,47 @@ button{cursor:pointer}
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .footer{padding:0 0 35px;text-align:center;color:var(--muted);font-size:13px}
+.nav-tabs{display:flex;justify-content:center;gap:8px;margin:0 0 25px}
+.nav-tab{padding:11px 20px;border:1px solid var(--border);background:#fff;color:var(--blue2);border-radius:12px;font-weight:800}
+.nav-tab.active,.nav-tab:hover{background:var(--blue2);color:#fff}
+.page-section{display:none}
+.page-section.active{display:block}
+.level{cursor:pointer}
+.level-actions{cursor:default}
+.rank-number{
+  width:70px;height:76px;border-radius:14px;
+  background:linear-gradient(135deg,var(--blue),var(--blue2));
+  color:#fff;display:flex;align-items:center;justify-content:center;
+  font-size:28px;font-weight:900;flex-shrink:0
+}
+.cover-box{
+  width:90px;height:76px;border-radius:14px;overflow:hidden;background:var(--light);
+  display:flex;align-items:center;justify-content:center;color:var(--blue2);font-weight:800
+}
+.cover-box img{width:100%;height:100%;object-fit:cover}
+.level-grid{display:grid;grid-template-columns:70px 90px 1fr auto;align-items:center;gap:16px}
+.news-list{display:flex;flex-direction:column;gap:14px;padding-bottom:60px}
+.news-card{
+  background:#fff;border:1px solid var(--border);border-radius:18px;padding:20px;
+  box-shadow:var(--shadow)
+}
+.news-card h3{margin:0 0 8px;color:var(--blue2);font-size:21px}
+.news-date{font-size:12px;color:var(--muted);margin-bottom:12px}
+.news-content{white-space:pre-wrap;line-height:1.6}
+.news-actions{display:none;gap:8px;margin-top:15px}
+.admin-mode .news-actions{display:flex}
+.video-modal .modal{width:min(900px,100%)}
+.video-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#06131d;border-radius:14px;overflow:hidden}
+.video-wrap iframe{width:100%;height:100%;border:0}
+.video-empty{padding:50px 20px;text-align:center;color:var(--muted)}
+.level-click-note{font-size:12px;color:var(--muted);margin-top:4px}
+@media(max-width:700px){
+  .level-grid{grid-template-columns:55px 65px 1fr}
+  .rank-number{width:55px;height:65px;font-size:21px}
+  .cover-box{width:65px;height:65px}
+  .level-actions{grid-column:1/-1}
+}
+
 @media(max-width:700px){
   .header{padding:0 4%}
   .logo{font-size:20px}
@@ -170,14 +211,32 @@ button{cursor:pointer}
     <p>Personal Geometry Dash Demon List</p>
   </section>
 
-  <div class="top-actions">
-    <button class="btn btn-primary add-button" id="addButton" style="display:none">
-      + Добавить уровень
-    </button>
-  </div>
+  <nav class="nav-tabs">
+    <button class="nav-tab active" id="levelsTab">Demon List</button>
+    <button class="nav-tab" id="newsTab">Новости</button>
+  </nav>
 
-  <section id="levels" class="levels">
-    <div class="loading">Загрузка уровней...</div>
+  <section id="levelsPage" class="page-section active">
+    <div class="top-actions">
+      <button class="btn btn-primary add-button" id="addButton" style="display:none">
+        + Добавить уровень
+      </button>
+    </div>
+
+    <section id="levels" class="levels">
+      <div class="loading">Загрузка уровней...</div>
+    </section>
+  </section>
+
+  <section id="newsPage" class="page-section">
+    <div class="top-actions">
+      <button class="btn btn-primary add-button" id="addNewsButton" style="display:none">
+        + Добавить новость
+      </button>
+    </div>
+    <section id="newsList" class="news-list">
+      <div class="loading">Загрузка новостей...</div>
+    </section>
   </section>
 
   <div class="footer">My Demon List • Geometry Dash</div>
@@ -236,6 +295,11 @@ button{cursor:pointer}
     </div>
 
     <div class="field">
+      <label for="youtubeUrl">YouTube showcase</label>
+      <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+    </div>
+
+    <div class="field">
       <label>Обложка</label>
       <div class="upload-box">
         <input type="file" id="coverFile" accept="image/*">
@@ -254,6 +318,41 @@ button{cursor:pointer}
     <div class="modal-actions">
       <button class="btn btn-light" onclick="closeLevelModal()">Отмена</button>
       <button class="btn btn-primary" id="saveButton">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- NEWS MODAL -->
+<div class="modal-bg" id="newsModal">
+  <div class="modal">
+    <h2 id="newsModalTitle">Добавить новость</h2>
+    <input type="hidden" id="newsEditId">
+
+    <div class="field">
+      <label for="newsTitle">Заголовок</label>
+      <input type="text" id="newsTitle" placeholder="Например: Added a new level">
+    </div>
+
+    <div class="field">
+      <label for="newsContent">Текст новости</label>
+      <textarea id="newsContent" placeholder="Напиши, что изменилось..." style="width:100%;min-height:170px;border:1px solid var(--border);border-radius:11px;padding:12px;resize:vertical;color:var(--text);font:inherit"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-light" onclick="closeNewsModal()">Отмена</button>
+      <button class="btn btn-primary" id="saveNewsButton">Опубликовать</button>
+    </div>
+  </div>
+</div>
+
+<!-- SHOWCASE MODAL -->
+<div class="modal-bg video-modal" id="showcaseModal">
+  <div class="modal">
+    <h2 id="showcaseTitle">Showcase</h2>
+    <div id="videoContainer" class="video-wrap"></div>
+    <div class="modal-actions">
+      <button class="btn btn-light" onclick="closeShowcase()">Закрыть</button>
     </div>
   </div>
 </div>
@@ -302,6 +401,7 @@ function initSupabase() {
 let currentUser = null;
 let selectedCoverFile = null;
 let levelsCache = [];
+let newsCache = [];
 
 /* =========================
    DEFAULT DISPLAY LEVELS
@@ -315,7 +415,8 @@ const DEFAULT_LEVELS = [
     author: "Unknown",
     rank: 1,
     score: "",
-    cover_url: ""
+    cover_url: "",
+    youtube_url: ""
   },
   {
     id: "default-2",
@@ -323,7 +424,8 @@ const DEFAULT_LEVELS = [
     author: "Unknown",
     rank: 2,
     score: "",
-    cover_url: ""
+    cover_url: "",
+    youtube_url: ""
   },
   {
     id: "default-3",
@@ -331,7 +433,8 @@ const DEFAULT_LEVELS = [
     author: "Unknown",
     rank: 3,
     score: "",
-    cover_url: ""
+    cover_url: "",
+    youtube_url: ""
   }
 ];
 
@@ -405,6 +508,7 @@ async function updateAuthUI(userFromEvent = null) {
     loginButton.style.display = "none";
     logoutButton.style.display = "block";
     addButton.style.display = "block";
+    addNewsButton.style.display = "block";
     adminLabel.style.display = "inline-block";
   } else {
     document.body.classList.remove("admin-mode");
@@ -412,6 +516,7 @@ async function updateAuthUI(userFromEvent = null) {
     loginButton.style.display = "block";
     logoutButton.style.display = "none";
     addButton.style.display = "none";
+    addNewsButton.style.display = "none";
     adminLabel.style.display = "none";
   }
 }
@@ -581,8 +686,7 @@ function renderLevels(levels, defaultsOnly) {
   const container = $("levels");
 
   if (!levels || levels.length === 0) {
-    container.innerHTML =
-      '<div class="empty">Пока нет уровней.</div>';
+    container.innerHTML = '<div class="empty">Пока нет уровней.</div>';
     return;
   }
 
@@ -591,39 +695,114 @@ function renderLevels(levels, defaultsOnly) {
       ? '<img src="' + escapeHtml(level.cover_url) + '" alt="" onerror="this.style.display=\'none\'">'
       : "";
 
+    const cover = image
+      ? '<div class="cover-box">' + image + '</div>'
+      : '<div class="cover-box">GD</div>';
+
     const score = level.score
       ? '<div class="level-score">' + escapeHtml(level.score) + "</div>"
       : "";
 
-    const adminButtons = defaultsOnly
-      ? ""
-      : `
-        <div class="level-actions">
-          <button class="btn btn-light" onclick="openEditModal('${escapeHtml(level.id)}')">
-            Изменить
-          </button>
-          <button class="btn btn-danger" onclick="deleteLevel('${escapeHtml(level.id)}')">
-            Удалить
-          </button>
-        </div>
-      `;
+    const adminButtons = defaultsOnly ? "" : `
+      <div class="level-actions">
+        <button class="btn btn-light" onclick="event.stopPropagation(); openEditModal('${escapeHtml(level.id)}')">Изменить</button>
+        <button class="btn btn-danger" onclick="event.stopPropagation(); deleteLevel('${escapeHtml(level.id)}')">Удалить</button>
+      </div>`;
 
     return `
-      <article class="level">
-        <div class="rank">
-          ${image || escapeHtml(level.rank)}
+      <article class="level" onclick="openShowcase('${escapeHtml(level.id)}')">
+        <div class="level-grid" style="grid-column:1/-1">
+          <div class="rank-number">${escapeHtml(level.rank)}</div>
+          ${cover}
+          <div class="level-info">
+            <div class="level-name">${escapeHtml(level.name)}</div>
+            <div class="level-author">by ${escapeHtml(level.author || "Unknown")}</div>
+            ${score}
+            <div class="level-click-note">${level.youtube_url ? "Нажмите, чтобы открыть showcase" : "Showcase пока не добавлен"}</div>
+          </div>
+          ${adminButtons}
         </div>
-
-        <div class="level-info">
-          <div class="level-name">${escapeHtml(level.name)}</div>
-          <div class="level-author">by ${escapeHtml(level.author || "Unknown")}</div>
-          ${score}
-        </div>
-
-        ${adminButtons}
-      </article>
-    `;
+      </article>`;
   }).join("");
+}
+
+function getYoutubeEmbedUrl(url) {
+  if (!url) return null;
+
+  try {
+    const value = url.trim();
+    let videoId = "";
+
+    if (value.includes("youtu.be/")) {
+      videoId = value.split("youtu.be/")[1].split(/[?&#]/)[0];
+    } else {
+      const parsed = new URL(value);
+      if (parsed.hostname.includes("youtube.com")) {
+        if (parsed.pathname === "/watch") {
+          videoId = parsed.searchParams.get("v") || "";
+        } else if (parsed.pathname.startsWith("/shorts/")) {
+          videoId = parsed.pathname.split("/shorts/")[1].split(/[?&#]/)[0];
+        } else if (parsed.pathname.startsWith("/embed/")) {
+          videoId = parsed.pathname.split("/embed/")[1].split(/[?&#]/)[0];
+        }
+      }
+    }
+
+    if (!videoId) return null;
+
+    return "https://www.youtube.com/embed/" +
+      encodeURIComponent(videoId) +
+      "?rel=0";
+  } catch {
+    return null;
+  }
+}
+
+function openShowcase(id) {
+  const level = levelsCache.find(item => String(item.id) === String(id));
+
+  if (!level) return;
+
+  $("showcaseTitle").textContent =
+    level.name + " — Showcase";
+
+  const embedUrl = getYoutubeEmbedUrl(level.youtube_url);
+
+  if (!embedUrl) {
+    $("videoContainer").innerHTML =
+      '<div class="video-empty">Для этого уровня YouTube showcase ещё не добавлен.</div>';
+  } else {
+    $("videoContainer").innerHTML =
+      '<iframe src="' + escapeHtml(embedUrl) +
+      '" title="YouTube showcase" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
+  }
+
+  $("showcaseModal").classList.add("show");
+}
+
+function closeShowcase() {
+  $("showcaseModal").classList.remove("show");
+  $("videoContainer").innerHTML = "";
+}
+
+function switchPage(page) {
+  const levelsPage = $("levelsPage");
+  const newsPage = $("newsPage");
+  const levelsTab = $("levelsTab");
+  const newsTab = $("newsTab");
+
+  if (page === "news") {
+    levelsPage.classList.remove("active");
+    newsPage.classList.add("active");
+    levelsTab.classList.remove("active");
+    newsTab.classList.add("active");
+    loadNews();
+  } else {
+    newsPage.classList.remove("active");
+    levelsPage.classList.add("active");
+    newsTab.classList.remove("active");
+    levelsTab.classList.add("active");
+  }
 }
 
 /* =========================
@@ -642,6 +821,7 @@ function openAddModal() {
   $("levelAuthor").value = "";
   $("levelRank").value = "";
   $("levelScore").value = "";
+  $("youtubeUrl").value = "";
   $("coverUrl").value = "";
   $("coverFile").value = "";
   $("coverPreview").style.display = "none";
@@ -672,6 +852,7 @@ function openEditModal(id) {
   $("levelAuthor").value = level.author || "";
   $("levelRank").value = level.rank || "";
   $("levelScore").value = level.score || "";
+  $("youtubeUrl").value = level.youtube_url || "";
   $("coverUrl").value = level.cover_url || "";
   $("coverFile").value = "";
   selectedCoverFile = null;
@@ -770,6 +951,7 @@ async function saveLevel() {
   const author = $("levelAuthor").value.trim();
   const rank = Number.parseInt($("levelRank").value, 10);
   const score = $("levelScore").value.trim();
+  const youtubeUrl = $("youtubeUrl").value.trim();
   const editId = $("editId").value;
   const typedCoverUrl = $("coverUrl").value.trim();
   const button = $("saveButton");
@@ -805,7 +987,8 @@ async function saveLevel() {
       author,
       rank,
       score: score || null,
-      cover_url: coverUrl
+      cover_url: coverUrl,
+      youtube_url: youtubeUrl || null
     };
 
     let result;
@@ -885,6 +1068,170 @@ async function deleteLevel(id) {
 }
 
 /* =========================
+   NEWS
+   ========================= */
+
+async function loadNews() {
+  const container = $("newsList");
+  container.innerHTML = '<div class="loading">Загрузка новостей...</div>';
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("news")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("Load news error:", error);
+      container.innerHTML =
+        '<div class="empty">Не удалось загрузить новости.<br><small>Создай таблицу news в Supabase по SQL из инструкции.</small></div>';
+      return;
+    }
+
+    newsCache = data || [];
+
+    if (!newsCache.length) {
+      container.innerHTML = '<div class="empty">Новостей пока нет.</div>';
+      return;
+    }
+
+    container.innerHTML = newsCache.map(item => {
+      const date = item.created_at
+        ? new Date(item.created_at).toLocaleString("ru-RU", {
+            dateStyle: "medium",
+            timeStyle: "short"
+          })
+        : "";
+
+      const actions = isAdmin() ? `
+        <div class="news-actions">
+          <button class="btn btn-light" onclick="openEditNews('${escapeHtml(item.id)}')">Изменить</button>
+          <button class="btn btn-danger" onclick="deleteNews('${escapeHtml(item.id)}')">Удалить</button>
+        </div>` : "";
+
+      return `
+        <article class="news-card">
+          <h3>${escapeHtml(item.title)}</h3>
+          <div class="news-date">${escapeHtml(date)}</div>
+          <div class="news-content">${escapeHtml(item.content)}</div>
+          ${actions}
+        </article>`;
+    }).join("");
+
+  } catch (error) {
+    console.error("loadNews:", error);
+    container.innerHTML = '<div class="empty">Ошибка загрузки новостей.</div>';
+  }
+}
+
+function openAddNews() {
+  if (!isAdmin()) {
+    showToast("Только администратор может публиковать новости.");
+    return;
+  }
+
+  $("newsModalTitle").textContent = "Добавить новость";
+  $("newsEditId").value = "";
+  $("newsTitle").value = "";
+  $("newsContent").value = "";
+  $("saveNewsButton").textContent = "Опубликовать";
+  $("newsModal").classList.add("show");
+  $("newsTitle").focus();
+}
+
+function openEditNews(id) {
+  if (!isAdmin()) return;
+
+  const item = newsCache.find(x => String(x.id) === String(id));
+  if (!item) return;
+
+  $("newsModalTitle").textContent = "Редактировать новость";
+  $("newsEditId").value = item.id;
+  $("newsTitle").value = item.title || "";
+  $("newsContent").value = item.content || "";
+  $("saveNewsButton").textContent = "Сохранить";
+  $("newsModal").classList.add("show");
+}
+
+function closeNewsModal() {
+  $("newsModal").classList.remove("show");
+}
+
+async function saveNews() {
+  if (!isAdmin()) {
+    showToast("Только администратор может публиковать новости.");
+    return;
+  }
+
+  const title = $("newsTitle").value.trim();
+  const content = $("newsContent").value.trim();
+  const editId = $("newsEditId").value;
+  const button = $("saveNewsButton");
+
+  if (!title || !content) {
+    showToast("Заполни заголовок и текст новости.");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Сохранение...";
+
+  try {
+    let result;
+
+    if (editId) {
+      result = await supabaseClient
+        .from("news")
+        .update({ title, content })
+        .eq("id", editId);
+    } else {
+      result = await supabaseClient
+        .from("news")
+        .insert({ title, content });
+    }
+
+    if (result.error) {
+      console.error("Save news error:", result.error);
+      showToast("Ошибка: " + result.error.message);
+      return;
+    }
+
+    closeNewsModal();
+    showToast(editId ? "Новость изменена!" : "Новость опубликована!");
+    await loadNews();
+
+  } catch (error) {
+    console.error("saveNews:", error);
+    showToast("Ошибка сохранения новости.");
+  } finally {
+    button.disabled = false;
+    button.textContent = editId ? "Сохранить" : "Опубликовать";
+  }
+}
+
+async function deleteNews(id) {
+  if (!isAdmin()) return;
+
+  const item = newsCache.find(x => String(x.id) === String(id));
+  if (!item) return;
+
+  if (!confirm('Удалить новость "' + item.title + '"?')) return;
+
+  const { error } = await supabaseClient
+    .from("news")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    showToast("Ошибка удаления: " + error.message);
+    return;
+  }
+
+  showToast("Новость удалена.");
+  await loadNews();
+}
+
+/* =========================
    MODAL CLICK / ESC
    ========================= */
 
@@ -900,10 +1247,24 @@ $("levelModal").addEventListener("click", event => {
   }
 });
 
+$("newsModal").addEventListener("click", event => {
+  if (event.target === $("newsModal")) {
+    closeNewsModal();
+  }
+});
+
+$("showcaseModal").addEventListener("click", event => {
+  if (event.target === $("showcaseModal")) {
+    closeShowcase();
+  }
+});
+
 document.addEventListener("keydown", event => {
   if (event.key === "Escape") {
     closeLogin();
     closeLevelModal();
+    closeNewsModal();
+    closeShowcase();
   }
 
   if (
@@ -936,6 +1297,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   $("loginSubmitButton").addEventListener("click", login);
   $("addButton").addEventListener("click", openAddModal);
   $("saveButton").addEventListener("click", saveLevel);
+  $("saveNewsButton").addEventListener("click", saveNews);
+  $("addNewsButton").addEventListener("click", openAddNews);
+  $("levelsTab").addEventListener("click", () => switchPage("levels"));
+  $("newsTab").addEventListener("click", () => switchPage("news"));
 
   await updateAuthUI();
   await loadLevels();
