@@ -2,195 +2,98 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My Demon List</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-:root{
-  --blue:#18aee8;
-  --blue2:#087cc2;
-  --light:#eefaff;
-  --white:#fff;
-  --text:#12324a;
-  --muted:#6a8799;
-  --border:#d9f2fc;
-  --danger:#ef5350;
-  --success:#169447;
-  --shadow:0 10px 30px rgba(8,124,194,.12);
+:root {
+  --blue:#18aee8; --blue2:#087cc2; --light:#eefaff;
+  --text:#12324a; --muted:#6a8799; --border:#d9f2fc;
+  --danger:#ef5350; --shadow:0 10px 30px #087cc21a;
 }
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:linear-gradient(180deg,#eefaff 0%,#fff 55%);
-  color:var(--text);
+* { box-sizing:border-box }
+body {
+  margin:0; font-family:Arial,Helvetica,sans-serif;
+  color:var(--text); background:linear-gradient(#eefaff,#fff 55%);
 }
-button,input{font:inherit}
-button{cursor:pointer}
-.header{
-  height:72px;
-  background:rgba(255,255,255,.96);
-  border-bottom:1px solid var(--border);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 6%;
-  position:sticky;
-  top:0;
-  z-index:20;
-  backdrop-filter:blur(10px);
+button,input { font:inherit }
+button { cursor:pointer }
+.header {
+  height:72px; background:#ffffffed; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 5%; position:sticky; top:0; z-index:10;
 }
-.logo{font-size:24px;font-weight:800;color:var(--blue2)}
-.header-right{display:flex;align-items:center;gap:10px}
-.admin-label{
-  display:none;
-  color:var(--blue2);
-  font-size:13px;
-  font-weight:800;
-  padding:7px 10px;
-  border-radius:9px;
-  background:var(--light);
-}
-.container{width:min(1100px,92%);margin:auto}
-.hero{text-align:center;padding:55px 15px 35px}
-.hero h1{
-  margin:0;
-  font-size:clamp(36px,7vw,64px);
-  font-weight:900;
-  color:var(--blue2);
-}
-.hero p{margin:12px 0 0;color:var(--muted);font-size:16px}
-.top-actions{display:flex;justify-content:center;margin-bottom:25px}
-.levels{display:flex;flex-direction:column;gap:12px;padding-bottom:60px}
-.level{
-  background:var(--white);
-  border:1px solid var(--border);
-  border-radius:18px;
-  min-height:100px;
-  display:grid;
-  grid-template-columns:95px 1fr auto;
-  align-items:center;
-  gap:18px;
-  padding:12px 20px 12px 12px;
+.logo { font-size:23px; font-weight:900; color:var(--blue2) }
+.container { width:min(1050px,92%); margin:auto }
+.hero { text-align:center; padding:48px 10px 30px }
+.hero h1 { margin:0; font-size:clamp(36px,7vw,62px); color:var(--blue2) }
+.hero p { color:var(--muted) }
+.top-actions { text-align:center; margin-bottom:24px }
+.levels { display:flex; flex-direction:column; gap:12px; padding-bottom:55px }
+.level {
+  display:grid; grid-template-columns:86px minmax(0,1fr) auto;
+  align-items:center; gap:16px; padding:12px;
+  background:white; border:1px solid var(--border); border-radius:17px;
   box-shadow:var(--shadow);
-  transition:.2s ease;
 }
-.level:hover{transform:translateY(-2px);box-shadow:0 15px 35px rgba(8,124,194,.16)}
-.rank{
-  width:80px;height:76px;border-radius:14px;
+.rank {
+  width:80px; height:76px; border-radius:13px;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden; color:white; font-size:26px; font-weight:900;
   background:linear-gradient(135deg,var(--blue),var(--blue2));
-  color:#fff;display:flex;align-items:center;justify-content:center;
-  font-size:27px;font-weight:900;overflow:hidden;
 }
-.rank img{width:100%;height:100%;object-fit:cover}
-.level-info{min-width:0}
-.level-name{font-size:22px;font-weight:800;color:var(--text);word-break:break-word}
-.level-author{margin-top:5px;color:var(--muted);font-size:14px}
-.level-score{margin-top:7px;color:var(--blue2);font-size:14px;font-weight:700}
-.level-actions{display:none;gap:7px;flex-wrap:wrap;justify-content:flex-end}
-.admin-mode .level-actions{display:flex}
-.btn{
-  border:none;border-radius:11px;padding:10px 15px;font-weight:700;
-  transition:.15s ease;
+.rank img { width:100%; height:100%; object-fit:cover }
+.level-name { font-size:21px; font-weight:800; overflow-wrap:anywhere }
+.level-author { margin-top:5px; font-size:14px; color:var(--muted) }
+.level-score { margin-top:7px; font-size:14px; color:var(--blue2); font-weight:700 }
+.actions { display:none; gap:7px; flex-wrap:wrap; justify-content:flex-end }
+.admin-mode .actions { display:flex }
+.btn { border:0; border-radius:10px; padding:10px 14px; font-weight:700 }
+.primary { color:white; background:linear-gradient(135deg,var(--blue),var(--blue2)) }
+.light { color:var(--blue2); background:var(--light); border:1px solid var(--border) }
+.danger { color:var(--danger); background:#fff0f0; border:1px solid #ffd2d2 }
+.empty,.loading {
+  text-align:center; padding:35px 18px; color:var(--muted);
+  background:white; border:1px solid var(--border); border-radius:16px;
 }
-.btn:hover{transform:translateY(-1px)}
-.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
-.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}
-.btn-light{background:var(--light);color:var(--blue2);border:1px solid var(--border)}
-.btn-danger{background:#fff0f0;color:var(--danger);border:1px solid #ffd2d2}
-.add-button{padding:13px 22px;border-radius:13px;font-size:15px}
-.empty{
-  background:#fff;border:1px dashed var(--border);border-radius:18px;
-  padding:40px 20px;text-align:center;color:var(--muted)
+.modal-bg {
+  display:none; position:fixed; inset:0; z-index:50;
+  background:#07283c77; align-items:center; justify-content:center; padding:18px;
 }
-.loading{text-align:center;color:var(--muted);padding:40px}
-.modal-bg{
-  position:fixed;inset:0;background:rgba(7,40,60,.45);
-  display:none;align-items:center;justify-content:center;padding:20px;z-index:100
+.modal-bg.show { display:flex }
+.modal {
+  background:white; border-radius:19px; padding:24px;
+  width:min(470px,100%); max-height:90vh; overflow:auto;
 }
-.modal-bg.show{display:flex}
-.modal{
-  width:min(480px,100%);background:#fff;border-radius:20px;padding:25px;
-  box-shadow:0 25px 70px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto
+.modal h2 { margin:0 0 20px; color:var(--blue2) }
+.field { margin-bottom:14px }
+.field label { display:block; font-size:13px; font-weight:700; margin-bottom:7px }
+.field input {
+  width:100%; border:1px solid var(--border); border-radius:10px;
+  padding:12px; outline:none; background:#fbfeff; color:var(--text);
 }
-.modal h2{margin:0 0 20px;color:var(--blue2)}
-.field{margin-bottom:15px}
-.field label{display:block;margin-bottom:7px;font-size:13px;font-weight:700}
-.field input{
-  width:100%;border:1px solid var(--border);border-radius:11px;padding:12px;
-  outline:none;color:var(--text);background:#fbfeff
+.field input:focus { border-color:var(--blue) }
+.hint { color:var(--muted); font-size:12px; margin-top:5px }
+.upload-box { padding:14px; background:#f8fdff; border:2px dashed var(--border); border-radius:13px }
+.preview { display:none; margin-top:12px }
+.preview img { width:100%; max-height:200px; object-fit:cover; border-radius:10px }
+.modal-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:20px }
+.status { font-size:13px; color:var(--muted); margin-top:8px; overflow-wrap:anywhere }
+.toast {
+  position:fixed; z-index:100; bottom:20px; left:50%;
+  transform:translate(-50%,20px); opacity:0; pointer-events:none;
+  background:#12324a; color:white; padding:12px 18px; border-radius:12px;
+  transition:.2s; max-width:90%; text-align:center;
 }
-.field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(24,174,232,.12)}
-.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}
-.upload-box{
-  border:2px dashed var(--border);border-radius:14px;padding:16px;
-  text-align:center;background:#f8fdff
-}
-.upload-box input{border:none;padding:5px;background:transparent}
-.preview{display:none;margin-top:12px}
-.preview img{width:100%;max-height:220px;object-fit:cover;border-radius:12px}
-.upload-status{margin-top:8px;font-size:13px;color:var(--muted)}
-.error{color:var(--danger)}
-.success{color:var(--success)}
-.login-info{color:var(--muted);font-size:13px;line-height:1.5;margin-bottom:15px}
-.toast{
-  position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);
-  background:#12324a;color:#fff;padding:12px 18px;border-radius:12px;opacity:0;
-  pointer-events:none;transition:.25s ease;z-index:300;max-width:92%;text-align:center
-}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.footer{padding:0 0 35px;text-align:center;color:var(--muted);font-size:13px}
-.nav-tabs{display:flex;justify-content:center;gap:8px;margin:0 0 25px}
-.nav-tab{padding:11px 20px;border:1px solid var(--border);background:#fff;color:var(--blue2);border-radius:12px;font-weight:800}
-.nav-tab.active,.nav-tab:hover{background:var(--blue2);color:#fff}
-.page-section{display:none}
-.page-section.active{display:block}
-.level{cursor:pointer}
-.level-actions{cursor:default}
-.rank-number{
-  width:70px;height:76px;border-radius:14px;
-  background:linear-gradient(135deg,var(--blue),var(--blue2));
-  color:#fff;display:flex;align-items:center;justify-content:center;
-  font-size:28px;font-weight:900;flex-shrink:0
-}
-.cover-box{
-  width:90px;height:76px;border-radius:14px;overflow:hidden;background:var(--light);
-  display:flex;align-items:center;justify-content:center;color:var(--blue2);font-weight:800
-}
-.cover-box img{width:100%;height:100%;object-fit:cover}
-.level-grid{display:grid;grid-template-columns:70px 90px 1fr auto;align-items:center;gap:16px}
-.news-list{display:flex;flex-direction:column;gap:14px;padding-bottom:60px}
-.news-card{
-  background:#fff;border:1px solid var(--border);border-radius:18px;padding:20px;
-  box-shadow:var(--shadow)
-}
-.news-card h3{margin:0 0 8px;color:var(--blue2);font-size:21px}
-.news-date{font-size:12px;color:var(--muted);margin-bottom:12px}
-.news-content{white-space:pre-wrap;line-height:1.6}
-.news-actions{display:none;gap:8px;margin-top:15px}
-.admin-mode .news-actions{display:flex}
-.video-modal .modal{width:min(900px,100%)}
-.video-wrap{position:relative;width:100%;aspect-ratio:16/9;background:#06131d;border-radius:14px;overflow:hidden}
-.video-wrap iframe{width:100%;height:100%;border:0}
-.video-empty{padding:50px 20px;text-align:center;color:var(--muted)}
-.level-click-note{font-size:12px;color:var(--muted);margin-top:4px}
-@media(max-width:700px){
-  .level-grid{grid-template-columns:55px 65px 1fr}
-  .rank-number{width:55px;height:65px;font-size:21px}
-  .cover-box{width:65px;height:65px}
-  .level-actions{grid-column:1/-1}
-}
-
-@media(max-width:700px){
-  .header{padding:0 4%}
-  .logo{font-size:20px}
-  .level{grid-template-columns:70px 1fr;gap:12px;padding:10px}
-  .rank{width:65px;height:65px;font-size:21px}
-  .level-name{font-size:18px}
-  .level-actions{grid-column:1/-1}
-  .admin-label{display:none!important}
+.toast.show { opacity:1; transform:translate(-50%,0) }
+@media(max-width:650px) {
+  .header { padding:0 4% }
+  .logo { font-size:19px }
+  .level { grid-template-columns:65px minmax(0,1fr); gap:11px }
+  .rank { width:62px; height:62px; font-size:21px }
+  .level-name { font-size:18px }
+  .actions { grid-column:1/-1 }
 }
 </style>
 </head>
@@ -198,10 +101,9 @@ button{cursor:pointer}
 <body>
 <header class="header">
   <div class="logo">My Demon List</div>
-  <div class="header-right">
-    <span class="admin-label" id="adminLabel">ADMIN</span>
-    <button class="btn btn-light" id="loginButton">Войти</button>
-    <button class="btn btn-light" id="logoutButton" style="display:none">Выйти</button>
+  <div>
+    <button class="btn light" id="loginButton" onclick="openLogin()">Войти</button>
+    <button class="btn light" id="logoutButton" onclick="logout()" hidden>Выйти</button>
   </div>
 </header>
 
@@ -211,148 +113,78 @@ button{cursor:pointer}
     <p>Personal Geometry Dash Demon List</p>
   </section>
 
-  <nav class="nav-tabs">
-    <button class="nav-tab active" id="levelsTab">Demon List</button>
-    <button class="nav-tab" id="newsTab">Новости</button>
-  </nav>
+  <div class="top-actions">
+    <button class="btn primary" id="addButton" onclick="openAddModal()" hidden>
+      + Добавить уровень
+    </button>
+  </div>
 
-  <section id="levelsPage" class="page-section active">
-    <div class="top-actions">
-      <button class="btn btn-primary add-button" id="addButton" style="display:none">
-        + Добавить уровень
-      </button>
-    </div>
-
-    <section id="levels" class="levels">
-      <div class="loading">Загрузка уровней...</div>
-    </section>
+  <section id="levels" class="levels">
+    <div class="loading">Загрузка уровней...</div>
   </section>
-
-  <section id="newsPage" class="page-section">
-    <div class="top-actions">
-      <button class="btn btn-primary add-button" id="addNewsButton" style="display:none">
-        + Добавить новость
-      </button>
-    </div>
-    <section id="newsList" class="news-list">
-      <div class="loading">Загрузка новостей...</div>
-    </section>
-  </section>
-
-  <div class="footer">My Demon List • Geometry Dash</div>
 </main>
 
-<!-- LOGIN -->
+<!-- ВХОД -->
 <div class="modal-bg" id="loginModal">
   <div class="modal">
     <h2>Вход администратора</h2>
-    <div class="login-info">
-      Введите данные администратора Supabase. Пароль хранится только у вас и не показывается сайту.
-      <br><span id="authStatus"></span>
-    </div>
-
     <div class="field">
-      <label for="loginEmail">Email</label>
-      <input type="email" id="loginEmail" placeholder="Email" autocomplete="email">
+      <label>Email</label>
+      <input type="email" id="loginEmail" autocomplete="username">
     </div>
-
     <div class="field">
-      <label for="loginPassword">Пароль</label>
-      <input type="password" id="loginPassword" placeholder="Пароль" autocomplete="current-password">
+      <label>Пароль</label>
+      <input type="password" id="loginPassword" autocomplete="current-password">
     </div>
-
     <div class="modal-actions">
-      <button class="btn btn-light" onclick="closeLogin()">Отмена</button>
-      <button class="btn btn-primary" id="loginSubmitButton">Войти</button>
+      <button class="btn light" onclick="closeModal('loginModal')">Отмена</button>
+      <button class="btn primary" id="loginSubmit" onclick="login()">Войти</button>
     </div>
   </div>
 </div>
 
-<!-- LEVEL -->
+<!-- ДОБАВЛЕНИЕ / РЕДАКТИРОВАНИЕ -->
 <div class="modal-bg" id="levelModal">
   <div class="modal">
     <h2 id="levelModalTitle">Добавить уровень</h2>
     <input type="hidden" id="editId">
 
     <div class="field">
-      <label for="levelName">Название уровня</label>
-      <input type="text" id="levelName" placeholder="Например: -Sirius-">
+      <label>Название уровня</label>
+      <input id="levelName" placeholder="-Sirius-">
     </div>
 
     <div class="field">
-      <label for="levelAuthor">Автор</label>
-      <input type="text" id="levelAuthor" placeholder="Автор уровня">
+      <label>Автор</label>
+      <input id="levelAuthor" placeholder="Имя автора">
     </div>
 
     <div class="field">
-      <label for="levelRank">Rank</label>
-      <input type="number" id="levelRank" placeholder="1" min="1">
+      <label>Rank — позиция в списке</label>
+      <input id="levelRank" type="number" min="1" step="1" placeholder="1">
+      <div class="hint">Укажи позицию. Остальные уровни автоматически сдвинутся.</div>
     </div>
 
     <div class="field">
-      <label for="levelScore">Attempts / Score</label>
-      <input type="text" id="levelScore" placeholder="700000 attempts">
+      <label>Score / Attempts</label>
+      <input id="levelScore" placeholder="Например: 700 attempts">
     </div>
 
     <div class="field">
-      <label for="youtubeUrl">YouTube showcase</label>
-      <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
-    </div>
-
-    <div class="field">
-      <label>Обложка</label>
+      <label>Обложка уровня</label>
       <div class="upload-box">
-        <input type="file" id="coverFile" accept="image/*">
-        <div class="upload-status" id="uploadStatus">Можно загрузить изображение или оставить без него.</div>
+        <input type="file" id="coverFile"
+          accept="image/png,image/jpeg,image/webp" onchange="previewCover(event)">
+        <div class="status" id="uploadStatus">Выбери изображение с устройства</div>
         <div class="preview" id="coverPreview">
-          <img id="previewImage" alt="Preview">
+          <img id="previewImage" alt="Предпросмотр обложки">
         </div>
       </div>
     </div>
 
-    <div class="field">
-      <label for="coverUrl">Или URL обложки</label>
-      <input type="url" id="coverUrl" placeholder="https://...">
-    </div>
-
     <div class="modal-actions">
-      <button class="btn btn-light" onclick="closeLevelModal()">Отмена</button>
-      <button class="btn btn-primary" id="saveButton">Сохранить</button>
-    </div>
-  </div>
-</div>
-
-
-<!-- NEWS MODAL -->
-<div class="modal-bg" id="newsModal">
-  <div class="modal">
-    <h2 id="newsModalTitle">Добавить новость</h2>
-    <input type="hidden" id="newsEditId">
-
-    <div class="field">
-      <label for="newsTitle">Заголовок</label>
-      <input type="text" id="newsTitle" placeholder="Например: Added a new level">
-    </div>
-
-    <div class="field">
-      <label for="newsContent">Текст новости</label>
-      <textarea id="newsContent" placeholder="Напиши, что изменилось..." style="width:100%;min-height:170px;border:1px solid var(--border);border-radius:11px;padding:12px;resize:vertical;color:var(--text);font:inherit"></textarea>
-    </div>
-
-    <div class="modal-actions">
-      <button class="btn btn-light" onclick="closeNewsModal()">Отмена</button>
-      <button class="btn btn-primary" id="saveNewsButton">Опубликовать</button>
-    </div>
-  </div>
-</div>
-
-<!-- SHOWCASE MODAL -->
-<div class="modal-bg video-modal" id="showcaseModal">
-  <div class="modal">
-    <h2 id="showcaseTitle">Showcase</h2>
-    <div id="videoContainer" class="video-wrap"></div>
-    <div class="modal-actions">
-      <button class="btn btn-light" onclick="closeShowcase()">Закрыть</button>
+      <button class="btn light" onclick="closeModal('levelModal')">Отмена</button>
+      <button class="btn primary" id="saveButton" onclick="saveLevel()">Сохранить</button>
     </div>
   </div>
 </div>
@@ -360,951 +192,190 @@ button{cursor:pointer}
 <div class="toast" id="toast"></div>
 
 <script>
-"use strict";
-
-/* =========================
-   SUPABASE CONFIG
-   ========================= */
-
+/* НАСТРОЙКИ SUPABASE */
 const SUPABASE_URL = "https://jlqddwufeosdszoemdom.supabase.co";
 const SUPABASE_KEY = "sb_publishable_SlsvVAcxBAbsFVPy8V_xow_0rteDQZa";
 const ADMIN_EMAIL = "arsenijkrasnov882@gmail.com";
 const BUCKET_NAME = "covers";
 
-let supabaseClient = null;
-
-function initSupabase() {
-  if (!window.supabase || typeof window.supabase.createClient !== "function") {
-    console.error("Supabase JS library did not load.");
-    showToast("Не загрузился Supabase. Обновите страницу.");
-    if ($("authStatus")) $("authStatus").textContent = "Supabase JS не загрузился.";
-    return false;
-  }
-
-  try {
-    supabaseClient = window.supabase.createClient(
-      SUPABASE_URL,
-      SUPABASE_KEY
-    );
-    return true;
-  } catch (error) {
-    console.error("Supabase init error:", error);
-    showToast("Ошибка запуска Supabase.");
-    return false;
-  }
-}
-
-/* =========================
-   STATE
-   ========================= */
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
-let selectedCoverFile = null;
 let levelsCache = [];
-let newsCache = [];
+let selectedCoverFile = null;
+let selectedCoverUrl = "";
+let saving = false;
 
-/* =========================
-   DEFAULT DISPLAY LEVELS
-   Used only if DB has no rows.
-   ========================= */
+/* ЗАПУСК */
+document.addEventListener("DOMContentLoaded", async () => {
+  await updateAuthUI();
+  await loadLevels();
+});
 
-const DEFAULT_LEVELS = [
-  {
-    id: "default-1",
-    name: "-Sirius-",
-    author: "Unknown",
-    rank: 1,
-    score: "",
-    cover_url: "",
-    youtube_url: ""
-  },
-  {
-    id: "default-2",
-    name: "revolver",
-    author: "Unknown",
-    rank: 2,
-    score: "",
-    cover_url: "",
-    youtube_url: ""
-  },
-  {
-    id: "default-3",
-    name: "boobawamba",
-    author: "Unknown",
-    rank: 3,
-    score: "",
-    cover_url: "",
-    youtube_url: ""
-  }
-];
+async function updateAuthUI() {
+  const { data: { user } } = await db.auth.getUser();
+  currentUser = user;
 
-/* =========================
-   HELPERS
-   ========================= */
+  const isAdmin = currentUser?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  document.body.classList.toggle("admin-mode", !!isAdmin);
 
-function $(id) {
-  return document.getElementById(id);
+  document.getElementById("loginButton").hidden = !!isAdmin;
+  document.getElementById("logoutButton").hidden = !isAdmin;
+  document.getElementById("addButton").hidden = !isAdmin;
 }
 
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
+db.auth.onAuthStateChange(() => {
+  setTimeout(async () => {
+    await updateAuthUI();
+    await loadLevels();
+  }, 0);
+});
 
-function isAdmin() {
-  return !!(
-    currentUser &&
-    currentUser.email &&
-    currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()
-  );
-}
-
-function showToast(message) {
-  const toast = $("toast");
-  toast.textContent = message;
-  toast.classList.add("show");
-
-  clearTimeout(showToast.timer);
-  showToast.timer = setTimeout(() => {
-    toast.classList.remove("show");
-  }, 3500);
-}
-
-/* =========================
-   AUTH UI
-   ========================= */
-
-async function updateAuthUI(userFromEvent = null) {
-  try {
-    if (userFromEvent !== null) {
-      currentUser = userFromEvent;
-    } else {
-      const { data, error } = await supabaseClient.auth.getUser();
-
-      if (error) {
-        console.warn("getUser:", error.message);
-        currentUser = null;
-      } else {
-        currentUser = data.user;
-      }
-    }
-  } catch (error) {
-    console.error("updateAuthUI:", error);
-    currentUser = null;
-  }
-
-  const loginButton = $("loginButton");
-  const logoutButton = $("logoutButton");
-  const addButton = $("addButton");
-  const adminLabel = $("adminLabel");
-
-  if (isAdmin()) {
-    document.body.classList.add("admin-mode");
-
-    loginButton.style.display = "none";
-    logoutButton.style.display = "block";
-    addButton.style.display = "block";
-    addNewsButton.style.display = "block";
-    adminLabel.style.display = "inline-block";
-  } else {
-    document.body.classList.remove("admin-mode");
-
-    loginButton.style.display = "block";
-    logoutButton.style.display = "none";
-    addButton.style.display = "none";
-    addNewsButton.style.display = "none";
-    adminLabel.style.display = "none";
-  }
-}
-
-/*
-  IMPORTANT:
-  Do not call async Supabase functions directly inside
-  onAuthStateChange. A delayed call prevents auth deadlocks.
-*/
-function installAuthListener() {
-  if (!supabaseClient) return;
-
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    currentUser = session ? session.user : null;
-
-    setTimeout(() => {
-      updateAuthUI(currentUser);
-    }, 0);
-  });
-}
-
-/* =========================
-   LOGIN
-   ========================= */
-
+/* АВТОРИЗАЦИЯ */
 function openLogin() {
-  $("loginModal").classList.add("show");
-  $("loginEmail").focus();
+  document.getElementById("loginModal").classList.add("show");
 }
-
-function closeLogin() {
-  $("loginModal").classList.remove("show");
+function closeModal(id) {
+  document.getElementById(id).classList.remove("show");
 }
 
 async function login() {
-  const email = $("loginEmail").value.trim();
-  const password = $("loginPassword").value;
-  const button = $("loginSubmitButton");
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const button = document.getElementById("loginSubmit");
 
-  if (!email || !password) {
-    showToast("Введите email и пароль.");
-    return;
-  }
+  if (!email || !password) return showToast("Введи email и пароль.");
 
   button.disabled = true;
-  button.textContent = "Вход...";
+  button.textContent = "Входим...";
 
-  try {
-    const { data, error } =
-      await supabaseClient.auth.signInWithPassword({
-        email,
-        password
-      });
+  const { error } = await db.auth.signInWithPassword({ email, password });
 
-    console.log("Supabase login:", { data, error });
+  button.disabled = false;
+  button.textContent = "Войти";
 
-    if (error) {
-      console.error("Supabase login error:", error);
+  if (error) return showToast("Ошибка входа: " + error.message);
 
-      const message = error.message || "Неизвестная ошибка.";
-
-      if (message.toLowerCase().includes("email not confirmed")) {
-        showToast("Email не подтверждён в Supabase.");
-      } else if (message.toLowerCase().includes("invalid login credentials")) {
-        showToast("Неверный email или пароль.");
-      } else {
-        showToast("Ошибка входа: " + message);
-      }
-
-      return;
-    }
-
-    if (!data || !data.user) {
-      showToast("Supabase не вернул пользователя.");
-      return;
-    }
-
-    currentUser = data.user;
-
-    if (
-      !currentUser.email ||
-      currentUser.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()
-    ) {
-      await supabaseClient.auth.signOut();
-      currentUser = null;
-      await updateAuthUI();
-      showToast("Этот аккаунт не является администратором.");
-      return;
-    }
-
-    closeLogin();
-    await updateAuthUI(currentUser);
-    showToast("Вход выполнен!");
-    await loadLevels();
-
-  } catch (error) {
-    console.error("LOGIN CRASH:", error);
-    showToast("Ошибка JavaScript: " + (error.message || error));
-  } finally {
-    button.disabled = false;
-    button.textContent = "Войти";
-  }
+  closeModal("loginModal");
+  showToast("Вход выполнен.");
+  await updateAuthUI();
+  await loadLevels();
 }
 
 async function logout() {
-  try {
-    const { error } = await supabaseClient.auth.signOut();
-
-    if (error) {
-      showToast("Ошибка выхода: " + error.message);
-      return;
-    }
-
-    currentUser = null;
-    await updateAuthUI(null);
-    showToast("Вы вышли из аккаунта.");
-  } catch (error) {
-    console.error("logout:", error);
-    showToast("Ошибка выхода.");
-  }
+  const { error } = await db.auth.signOut();
+  if (error) return showToast(error.message);
+  await updateAuthUI();
+  await loadLevels();
+  showToast("Вы вышли из аккаунта.");
 }
 
-/* =========================
-   LOAD LEVELS
-   ========================= */
+function isAdmin() {
+  return !!currentUser?.email &&
+    currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+}
 
+/* ЗАГРУЗКА СПИСКА */
 async function loadLevels() {
-  const container = $("levels");
+  const container = document.getElementById("levels");
   container.innerHTML = '<div class="loading">Загрузка уровней...</div>';
 
-  try {
-    const { data, error } = await supabaseClient
-      .from("levels")
-      .select("*")
-      .order("rank", { ascending: true });
+  const { data, error } = await db
+    .from("levels")
+    .select("*")
+    .order("rank", { ascending: true });
 
-    if (error) {
-      console.error("Load levels error:", error);
-      container.innerHTML =
-        '<div class="empty">Не удалось загрузить уровни.<br><small>' +
-        escapeHtml(error.message) +
-        "</small></div>";
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      levelsCache = DEFAULT_LEVELS;
-      renderLevels(DEFAULT_LEVELS, true);
-      return;
-    }
-
-    levelsCache = data;
-    renderLevels(data, false);
-
-  } catch (error) {
-    console.error("loadLevels:", error);
-    container.innerHTML =
-      '<div class="empty">Ошибка загрузки уровней.</div>';
+  if (error) {
+    console.error(error);
+    container.innerHTML = `<div class="empty">Не удалось загрузить уровни.<br><br>${escapeHtml(error.message)}</div>`;
+    return;
   }
+
+  levelsCache = data || [];
+
+  // Примеры отображаются, если база пока пустая.
+  // Они не записываются в Supabase автоматически.
+  if (levelsCache.length === 0) {
+    levelsCache = [
+      { id: "demo-1", name: "-Sirius-", author: "Unknown", rank: 1, score: "", cover_url: "" },
+      { id: "demo-2", name: "revolver", author: "Unknown", rank: 2, score: "", cover_url: "" },
+      { id: "demo-3", name: "boobawamba", author: "Unknown", rank: 3, score: "", cover_url: "" }
+    ];
+  }
+
+  renderLevels();
 }
 
-/* =========================
-   RENDER
-   ========================= */
+/* ОТОБРАЖЕНИЕ */
+function renderLevels() {
+  const container = document.getElementById("levels");
 
-function renderLevels(levels, defaultsOnly) {
-  const container = $("levels");
-
-  if (!levels || levels.length === 0) {
+  if (!levelsCache.length) {
     container.innerHTML = '<div class="empty">Пока нет уровней.</div>';
     return;
   }
 
-  container.innerHTML = levels.map(level => {
-    const image = level.cover_url
-      ? '<img src="' + escapeHtml(level.cover_url) + '" alt="" onerror="this.style.display=\'none\'">'
+  container.innerHTML = levelsCache.map(level => {
+    const rankContent = level.cover_url
+      ? `<img src="${escapeHtml(level.cover_url)}" alt="Обложка">`
+      : escapeHtml(level.rank);
+
+    const actions = isAdmin() && !String(level.id).startsWith("demo-")
+      ? `<div class="actions">
+           <button class="btn light" onclick="openEditModal('${escapeJs(level.id)}')">Изменить</button>
+           <button class="btn danger" onclick="deleteLevel('${escapeJs(level.id)}')">Удалить</button>
+         </div>`
       : "";
-
-    const cover = image
-      ? '<div class="cover-box">' + image + '</div>'
-      : '<div class="cover-box">GD</div>';
-
-    const score = level.score
-      ? '<div class="level-score">' + escapeHtml(level.score) + "</div>"
-      : "";
-
-    const adminButtons = defaultsOnly ? "" : `
-      <div class="level-actions">
-        <button class="btn btn-light" onclick="event.stopPropagation(); openEditModal('${escapeHtml(level.id)}')">Изменить</button>
-        <button class="btn btn-danger" onclick="event.stopPropagation(); deleteLevel('${escapeHtml(level.id)}')">Удалить</button>
-      </div>`;
 
     return `
-      <article class="level" onclick="openShowcase('${escapeHtml(level.id)}')">
-        <div class="level-grid" style="grid-column:1/-1">
-          <div class="rank-number">${escapeHtml(level.rank)}</div>
-          ${cover}
-          <div class="level-info">
-            <div class="level-name">${escapeHtml(level.name)}</div>
-            <div class="level-author">by ${escapeHtml(level.author || "Unknown")}</div>
-            ${score}
-            <div class="level-click-note">${level.youtube_url ? "Нажмите, чтобы открыть showcase" : "Showcase пока не добавлен"}</div>
-          </div>
-          ${adminButtons}
+      <article class="level">
+        <div class="rank">${rankContent}</div>
+        <div class="level-info">
+          <div class="level-name">${escapeHtml(level.name || "Unnamed")}</div>
+          <div class="level-author">by ${escapeHtml(level.author || "Unknown")}</div>
+          ${level.score ? `<div class="level-score">${escapeHtml(level.score)}</div>` : ""}
         </div>
+        ${actions}
       </article>`;
   }).join("");
 }
 
-function getYoutubeEmbedUrl(url) {
-  if (!url) return null;
-
-  try {
-    const value = url.trim();
-    let videoId = "";
-
-    if (value.includes("youtu.be/")) {
-      videoId = value.split("youtu.be/")[1].split(/[?&#]/)[0];
-    } else {
-      const parsed = new URL(value);
-      if (parsed.hostname.includes("youtube.com")) {
-        if (parsed.pathname === "/watch") {
-          videoId = parsed.searchParams.get("v") || "";
-        } else if (parsed.pathname.startsWith("/shorts/")) {
-          videoId = parsed.pathname.split("/shorts/")[1].split(/[?&#]/)[0];
-        } else if (parsed.pathname.startsWith("/embed/")) {
-          videoId = parsed.pathname.split("/embed/")[1].split(/[?&#]/)[0];
-        }
-      }
-    }
-
-    if (!videoId) return null;
-
-    return "https://www.youtube.com/embed/" +
-      encodeURIComponent(videoId) +
-      "?rel=0";
-  } catch {
-    return null;
-  }
-}
-
-function openShowcase(id) {
-  const level = levelsCache.find(item => String(item.id) === String(id));
-
-  if (!level) return;
-
-  $("showcaseTitle").textContent =
-    level.name + " — Showcase";
-
-  const embedUrl = getYoutubeEmbedUrl(level.youtube_url);
-
-  if (!embedUrl) {
-    $("videoContainer").innerHTML =
-      '<div class="video-empty">Для этого уровня YouTube showcase ещё не добавлен.</div>';
-  } else {
-    $("videoContainer").innerHTML =
-      '<iframe src="' + escapeHtml(embedUrl) +
-      '" title="YouTube showcase" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>';
-  }
-
-  $("showcaseModal").classList.add("show");
-}
-
-function closeShowcase() {
-  $("showcaseModal").classList.remove("show");
-  $("videoContainer").innerHTML = "";
-}
-
-function switchPage(page) {
-  const levelsPage = $("levelsPage");
-  const newsPage = $("newsPage");
-  const levelsTab = $("levelsTab");
-  const newsTab = $("newsTab");
-
-  if (page === "news") {
-    levelsPage.classList.remove("active");
-    newsPage.classList.add("active");
-    levelsTab.classList.remove("active");
-    newsTab.classList.add("active");
-    loadNews();
-  } else {
-    newsPage.classList.remove("active");
-    levelsPage.classList.add("active");
-    newsTab.classList.remove("active");
-    levelsTab.classList.add("active");
-  }
-}
-
-/* =========================
-   LEVEL MODAL
-   ========================= */
-
+/* ФОРМА ДОБАВЛЕНИЯ */
 function openAddModal() {
-  if (!isAdmin()) {
-    showToast("Сначала войдите как администратор.");
-    return;
-  }
+  if (!isAdmin()) return showToast("Нет доступа.");
 
-  $("levelModalTitle").textContent = "Добавить уровень";
-  $("editId").value = "";
-  $("levelName").value = "";
-  $("levelAuthor").value = "";
-  $("levelRank").value = "";
-  $("levelScore").value = "";
-  $("youtubeUrl").value = "";
-  $("coverUrl").value = "";
-  $("coverFile").value = "";
-  $("coverPreview").style.display = "none";
-  $("uploadStatus").textContent =
-    "Можно загрузить изображение или оставить без него.";
+  document.getElementById("levelModalTitle").textContent = "Добавить уровень";
+  document.getElementById("editId").value = "";
+  document.getElementById("levelName").value = "";
+  document.getElementById("levelAuthor").value = "";
+  document.getElementById("levelRank").value = getNextRank();
+  document.getElementById("levelScore").value = "";
+
   selectedCoverFile = null;
+  selectedCoverUrl = "";
+  resetCoverInput();
 
-  $("levelModal").classList.add("show");
-  $("levelName").focus();
+  document.getElementById("levelModal").classList.add("show");
 }
 
+/* ФОРМА РЕДАКТИРОВАНИЯ */
 function openEditModal(id) {
-  if (!isAdmin()) {
-    showToast("Сначала войдите как администратор.");
-    return;
-  }
+  if (!isAdmin()) return showToast("Нет доступа.");
 
-  const level = levelsCache.find(item => String(item.id) === String(id));
+  const level = levelsCache.find(x => String(x.id) === String(id));
+  if (!level) return showToast("Уровень не найден.");
 
-  if (!level) {
-    showToast("Уровень не найден.");
-    return;
-  }
+  document.getElementById("levelModalTitle").textContent = "Редактировать уровень";
+  document.getElementById("editId").value = level.id;
+  document.getElementById("levelName").value = level.name || "";
+  document.getElementById("levelAuthor").value = level.author || "";
+  document.getElementById("levelRank").value = level.rank || 1;
+  document.getElementById("levelScore").value = level.score || "";
 
-  $("levelModalTitle").textContent = "Редактировать уровень";
-  $("editId").value = level.id;
-  $("levelName").value = level.name || "";
-  $("levelAuthor").value = level.author || "";
-  $("levelRank").value = level.rank || "";
-  $("levelScore").value = level.score || "";
-  $("youtubeUrl").value = level.youtube_url || "";
-  $("coverUrl").value = level.cover_url || "";
-  $("coverFile").value = "";
   selectedCoverFile = null;
-
-  if (level.cover_url) {
-    $("previewImage").src = level.cover_url;
-    $("coverPreview").style.display = "block";
-  } else {
-    $("coverPreview").style.display = "none";
-  }
-
-  $("uploadStatus").textContent =
-    "Выберите новый файл только если хотите заменить обложку.";
-
-  $("levelModal").classList.add("show");
-}
-
-function closeLevelModal() {
-  $("levelModal").classList.remove("show");
-  selectedCoverFile = null;
-}
-
-$("coverFile").addEventListener("change", event => {
-  const file = event.target.files[0];
-
-  if (!file) {
-    selectedCoverFile = null;
-    return;
-  }
-
-  selectedCoverFile = file;
-
-  if (!file.type.startsWith("image/")) {
-    selectedCoverFile = null;
-    event.target.value = "";
-    showToast("Выберите изображение.");
-    return;
-  }
-
-  const url = URL.createObjectURL(file);
-  $("previewImage").src = url;
-  $("coverPreview").style.display = "block";
-  $("uploadStatus").textContent = file.name;
-});
-
-/* =========================
-   COVER UPLOAD
-   ========================= */
-
-async function uploadCover(file) {
-  if (!file) return null;
-
-  const safeName = file.name
-    .toLowerCase()
-    .replace(/[^a-z0-9._-]/g, "-");
-
-  const path =
-    "covers/" +
-    Date.now() +
-    "-" +
-    Math.random().toString(36).slice(2, 10) +
-    "-" +
-    safeName;
-
-  const { error: uploadError } =
-    await supabaseClient.storage
-      .from(BUCKET_NAME)
-      .upload(path, file, {
-        cacheControl: "3600",
-        upsert: false
-      });
-
-  if (uploadError) {
-    throw uploadError;
-  }
-
-  const { data } =
-    supabaseClient.storage
-      .from(BUCKET_NAME)
-      .getPublicUrl(path);
-
-  return data.publicUrl;
-}
-
-/* =========================
-   SAVE LEVEL
-   ========================= */
-
-async function saveLevel() {
-  if (!isAdmin()) {
-    showToast("Нет доступа администратора.");
-    return;
-  }
-
-  const name = $("levelName").value.trim();
-  const author = $("levelAuthor").value.trim();
-  const rank = Number.parseInt($("levelRank").value, 10);
-  const score = $("levelScore").value.trim();
-  const youtubeUrl = $("youtubeUrl").value.trim();
-  const editId = $("editId").value;
-  const typedCoverUrl = $("coverUrl").value.trim();
-  const button = $("saveButton");
-
-  if (!name) {
-    showToast("Введите название уровня.");
-    return;
-  }
-
-  if (!author) {
-    showToast("Введите автора.");
-    return;
-  }
-
-  if (!Number.isInteger(rank) || rank < 1) {
-    showToast("Rank должен быть целым числом от 1.");
-    return;
-  }
-
-  button.disabled = true;
-  button.textContent = "Сохранение...";
-
-  try {
-    let coverUrl = typedCoverUrl || null;
-
-    if (selectedCoverFile) {
-      $("uploadStatus").textContent = "Загрузка обложки...";
-      coverUrl = await uploadCover(selectedCoverFile);
-    }
-
-    const payload = {
-      name,
-      author,
-      rank,
-      score: score || null,
-      cover_url: coverUrl,
-      youtube_url: youtubeUrl || null
-    };
-
-    let result;
-
-    if (editId) {
-      result = await supabaseClient
-        .from("levels")
-        .update(payload)
-        .eq("id", editId);
-    } else {
-      result = await supabaseClient
-        .from("levels")
-        .insert(payload);
-    }
-
-    if (result.error) {
-      console.error("Save level error:", result.error);
-      showToast("Ошибка сохранения: " + result.error.message);
-      return;
-    }
-
-    closeLevelModal();
-    showToast(editId ? "Уровень изменён!" : "Уровень добавлен!");
-    await loadLevels();
-
-  } catch (error) {
-    console.error("saveLevel:", error);
-    showToast("Ошибка: " + (error.message || error));
-  } finally {
-    button.disabled = false;
-    button.textContent = "Сохранить";
-  }
-}
-
-/* =========================
-   DELETE LEVEL
-   ========================= */
-
-async function deleteLevel(id) {
-  if (!isAdmin()) {
-    showToast("Нет доступа администратора.");
-    return;
-  }
-
-  const level = levelsCache.find(item => String(item.id) === String(id));
-
-  if (!level) {
-    showToast("Уровень не найден.");
-    return;
-  }
-
-  const confirmed = confirm(
-    'Удалить уровень "' + level.name + '"?'
-  );
-
-  if (!confirmed) return;
-
-  try {
-    const { error } = await supabaseClient
-      .from("levels")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      console.error("Delete level error:", error);
-      showToast("Ошибка удаления: " + error.message);
-      return;
-    }
-
-    showToast("Уровень удалён.");
-    await loadLevels();
-
-  } catch (error) {
-    console.error("deleteLevel:", error);
-    showToast("Ошибка удаления.");
-  }
-}
-
-/* =========================
-   NEWS
-   ========================= */
-
-async function loadNews() {
-  const container = $("newsList");
-  container.innerHTML = '<div class="loading">Загрузка новостей...</div>';
-
-  try {
-    const { data, error } = await supabaseClient
-      .from("news")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("Load news error:", error);
-      container.innerHTML =
-        '<div class="empty">Не удалось загрузить новости.<br><small>Создай таблицу news в Supabase по SQL из инструкции.</small></div>';
-      return;
-    }
-
-    newsCache = data || [];
-
-    if (!newsCache.length) {
-      container.innerHTML = '<div class="empty">Новостей пока нет.</div>';
-      return;
-    }
-
-    container.innerHTML = newsCache.map(item => {
-      const date = item.created_at
-        ? new Date(item.created_at).toLocaleString("ru-RU", {
-            dateStyle: "medium",
-            timeStyle: "short"
-          })
-        : "";
-
-      const actions = isAdmin() ? `
-        <div class="news-actions">
-          <button class="btn btn-light" onclick="openEditNews('${escapeHtml(item.id)}')">Изменить</button>
-          <button class="btn btn-danger" onclick="deleteNews('${escapeHtml(item.id)}')">Удалить</button>
-        </div>` : "";
-
-      return `
-        <article class="news-card">
-          <h3>${escapeHtml(item.title)}</h3>
-          <div class="news-date">${escapeHtml(date)}</div>
-          <div class="news-content">${escapeHtml(item.content)}</div>
-          ${actions}
-        </article>`;
-    }).join("");
-
-  } catch (error) {
-    console.error("loadNews:", error);
-    container.innerHTML = '<div class="empty">Ошибка загрузки новостей.</div>';
-  }
-}
-
-function openAddNews() {
-  if (!isAdmin()) {
-    showToast("Только администратор может публиковать новости.");
-    return;
-  }
-
-  $("newsModalTitle").textContent = "Добавить новость";
-  $("newsEditId").value = "";
-  $("newsTitle").value = "";
-  $("newsContent").value = "";
-  $("saveNewsButton").textContent = "Опубликовать";
-  $("newsModal").classList.add("show");
-  $("newsTitle").focus();
-}
-
-function openEditNews(id) {
-  if (!isAdmin()) return;
-
-  const item = newsCache.find(x => String(x.id) === String(id));
-  if (!item) return;
-
-  $("newsModalTitle").textContent = "Редактировать новость";
-  $("newsEditId").value = item.id;
-  $("newsTitle").value = item.title || "";
-  $("newsContent").value = item.content || "";
-  $("saveNewsButton").textContent = "Сохранить";
-  $("newsModal").classList.add("show");
-}
-
-function closeNewsModal() {
-  $("newsModal").classList.remove("show");
-}
-
-async function saveNews() {
-  if (!isAdmin()) {
-    showToast("Только администратор может публиковать новости.");
-    return;
-  }
-
-  const title = $("newsTitle").value.trim();
-  const content = $("newsContent").value.trim();
-  const editId = $("newsEditId").value;
-  const button = $("saveNewsButton");
-
-  if (!title || !content) {
-    showToast("Заполни заголовок и текст новости.");
-    return;
-  }
-
-  button.disabled = true;
-  button.textContent = "Сохранение...";
-
-  try {
-    let result;
-
-    if (editId) {
-      result = await supabaseClient
-        .from("news")
-        .update({ title, content })
-        .eq("id", editId);
-    } else {
-      result = await supabaseClient
-        .from("news")
-        .insert({ title, content });
-    }
-
-    if (result.error) {
-      console.error("Save news error:", result.error);
-      showToast("Ошибка: " + result.error.message);
-      return;
-    }
-
-    closeNewsModal();
-    showToast(editId ? "Новость изменена!" : "Новость опубликована!");
-    await loadNews();
-
-  } catch (error) {
-    console.error("saveNews:", error);
-    showToast("Ошибка сохранения новости.");
-  } finally {
-    button.disabled = false;
-    button.textContent = editId ? "Сохранить" : "Опубликовать";
-  }
-}
-
-async function deleteNews(id) {
-  if (!isAdmin()) return;
-
-  const item = newsCache.find(x => String(x.id) === String(id));
-  if (!item) return;
-
-  if (!confirm('Удалить новость "' + item.title + '"?')) return;
-
-  const { error } = await supabaseClient
-    .from("news")
-    .delete()
-    .eq("id", id);
-
-  if (error) {
-    showToast("Ошибка удаления: " + error.message);
-    return;
-  }
-
-  showToast("Новость удалена.");
-  await loadNews();
-}
-
-/* =========================
-   MODAL CLICK / ESC
-   ========================= */
-
-$("loginModal").addEventListener("click", event => {
-  if (event.target === $("loginModal")) {
-    closeLogin();
-  }
-});
-
-$("levelModal").addEventListener("click", event => {
-  if (event.target === $("levelModal")) {
-    closeLevelModal();
-  }
-});
-
-$("newsModal").addEventListener("click", event => {
-  if (event.target === $("newsModal")) {
-    closeNewsModal();
-  }
-});
-
-$("showcaseModal").addEventListener("click", event => {
-  if (event.target === $("showcaseModal")) {
-    closeShowcase();
-  }
-});
-
-document.addEventListener("keydown", event => {
-  if (event.key === "Escape") {
-    closeLogin();
-    closeLevelModal();
-    closeNewsModal();
-    closeShowcase();
-  }
-
-  if (
-    event.key === "Enter" &&
-    $("loginModal").classList.contains("show") &&
-    document.activeElement !== $("loginPassword") &&
-    document.activeElement !== $("loginEmail")
-  ) {
-    login();
-  }
-});
-
-/* =========================
-   START
-   ========================= */
-
-document.addEventListener("DOMContentLoaded", async () => {
-  // First make sure the Supabase library and client exist.
-  if (!initSupabase()) {
-    $("levels").innerHTML =
-      '<div class="empty">Supabase не загрузился.<br><small>Проверь интернет и обнови страницу.</small></div>';
-    return;
-  }
-
-  installAuthListener();
-
-  // Explicit listeners make the buttons work even if inline handlers are restricted.
-  $("loginButton").addEventListener("click", openLogin);
-  $("logoutButton").addEventListener("click", logout);
-  $("loginSubmitButton").addEventListener("click", login);
-  $("addButton").addEventListener("click", openAddModal);
-  $("saveButton").addEventListener("click", saveLevel);
-  $("saveNewsButton").addEventListener("click", saveNews);
-  $("addNewsButton").addEventListener("click", openAddNews);
-  $("levelsTab").addEventListener("click", () => switchPage("levels"));
-  $("newsTab").addEventListener("click", () => switchPage("news"));
-
-  await updateAuthUI();
-  await loadLevels();
-});
-</script>
-</body>
-</html>
+  selectedCoverUrl = level.cover_url || "";
+  resetCoverInput();
+
+  if (selectedCoverUrl) {
+    document.getElementById("previewImage").src = selectedCoverUrl;
+    document.getElementById("coverPreview").style.display = "block";
