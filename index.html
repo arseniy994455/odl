@@ -379,3 +379,326 @@ function openEditModal(id) {
   if (selectedCoverUrl) {
     document.getElementById("previewImage").src = selectedCoverUrl;
     document.getElementById("coverPreview").style.display = "block";
+    document.getElementById("uploadStatus").textContent =
+      "Текущая обложка. Выбери файл, чтобы заменить её.";
+  }
+
+  document.getElementById("levelModal").classList.add("show");
+}
+
+/* ПРЕДПРОСМОТР КАРТИНКИ */
+function previewCover(event) {
+  const file = event.target.files[0];
+  if (!file) {
+    selectedCoverFile = null;
+    return;
+  }
+
+  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+    event.target.value = "";
+    return showToast("Используй JPG, PNG или WebP.");
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    event.target.value = "";
+    return showToast("Максимальный размер обложки — 10 MB.");
+  }
+
+  selectedCoverFile = file;
+  const reader = new FileReader();
+
+  reader.onload = e => {
+    document.getElementById("previewImage").src = e.target.result;
+    document.getElementById("coverPreview").style.display = "block";
+  };
+
+  reader.readAsDataURL(file);
+  document.getElementById("uploadStatus").textContent = file.name;
+}
+
+/* ЗАГРУЗКА ОБЛОЖКИ В STORAGE */
+async function uploadCover() {
+  if (!selectedCoverFile) return selectedCoverUrl;
+
+  const status = document.getElementById("uploadStatus");
+  status.textContent = "Загружаем обложку...";
+
+  const extension = selectedCoverFile.name.split(".").pop().toLowerCase();
+  const filePath = `covers/${crypto.randomUUID()}.${extension}`;
+
+  const { error } = await db.storage
+    .from(BUCKET_NAME)
+    .upload(filePath, selectedCoverFile, {
+      cacheControl: "3600",
+      upsert: false
+    });
+
+  if (error) throw error;
+
+  const { data } = db.storage.from(BUCKET_NAME).getPublicUrl(filePath);
+  selectedCoverUrl = data.publicUrl;
+
+  status.textContent = "Обложка загружена.";
+  return selectedCoverUrl;
+}
+
+/*
+  СДВИГ РАНГОВ
+
+  При добавлении на #5:
+  сначала двигаем #N на #N+1, начиная с последнего ранга,
+  и только потом вставляем новый уровень на #5.
+
+  При перемещении существующего уровня:
+  - вверх: сдвигаем промежуточные ранги вниз, начиная с ближайшего к концу;
+  - вниз: сдвигаем промежуточные ранги вверх, начиная с ближайшего к началу.
+
+  Временный rank = -1 помогает избежать конфликта,
+  если в таблице установлен UNIQUE на колонку rank.
+*/
+
+/* ОБНОВИТЬ РАНГ ОДНОГО УРОВНЯ */
+async function setRank(id, rank) {
+  const { error } = await db
+    .from("levels")
+    .update({ rank })
+    .eq("id", id);
+
+  if (error) throw error;
+}
+
+/* ДОБАВИТЬ УРОВЕНЬ В УКАЗАННУЮ ПОЗИЦИЮ */
+async function insertAtRank(levelData, targetRank) {
+  const { data, error } = await db
+    .from("levels")
+    .select("id,rank")
+    .gte("rank", targetRank)
+    .order("rank", { ascending: false });
+
+  if (error) throw error;
+
+  // Сдвигаем с конца, чтобы не столкнуться с занятыми позициями.
+  for (const level of (data || [])) {
+    await setRank(level.id, Number(level.rank) + 1);
+  }
+
+  const { error: insertError } = await db
+    .from("levels")
+    .insert({ ...levelData, rank: targetRank });
+
+  if (insertError) throw insertError;
+}
+
+/* ПЕРЕМЕСТИТЬ СУЩЕСТВУЮЩИЙ УРОВЕНЬ */
+async function moveLevel(id, oldRank, newRank, levelData) {
+  if (oldRank === newRank) {
+    const { error } = await db
+      .from("levels")
+      .update({ ...levelData, rank: newRank })
+      .eq("id", id);
+
+    if (error) throw error;
+    return;
+  }
+
+  // Временно освобождаем старую позицию.
+  await setRank(id, -1);
+
+  if (newRank < oldRank) {
+    // Например, #10 -> #3: #9 -> #10, #8 -> #9 ... #3 -> #4.
+    const { data, error } = await db
+      .from("levels")
+      .select("id,rank")
+      .gte("rank", newRank)
+      .lt("rank", oldRank)
+      .order("rank", { ascending: false });
+
+    if (error) throw error;
+
+    for (const level of (data || [])) {
+      await setRank(level.id, Number(level.rank) + 1);
+    }
+  } else {
+    // Например, #3 -> #8: #4 -> #3, #5 -> #4 ... #8 -> #7.
+    const { data, error } = await db
+      .from("levels")
+      .select("id,rank")
+      .gt("rank", oldRank)
+      .lte("rank", newRank)
+      .order("rank", { ascending: true });
+
+    if (error) throw error;
+
+    for (const level of (data || [])) {
+      await setRank(level.id, Number(level.rank) - 1);
+    }
+  }
+
+  // Сохраняем поля и новую позицию перемещённого уровня.
+  const { error } = await db
+    .from("levels")
+    .update({ ...levelData, rank: newRank })
+    .eq("id", id);
+
+  if (error) throw error;
+}
+
+/* СОХРАНЕНИЕ */
+async function saveLevel() {
+  if (saving) return;
+  if (!isAdmin()) return showToast("Нет доступа.");
+
+  const id = document.getElementById("editId").value;
+  const name = document.getElementById("levelName").value.trim();
+  const author = document.getElementById("levelAuthor").value.trim();
+  const rank = Number(document.getElementById("levelRank").value);
+  const score = document.getElementById("levelScore").value.trim();
+
+  if (!name) return showToast("Введи название уровня.");
+  if (!author) return showToast("Введи автора.");
+  if (!Number.isInteger(rank) || rank < 1) {
+    return showToast("Rank должен быть целым числом от 1.");
+  }
+
+  // Для изменения списка используем только настоящие записи из БД.
+  const realLevels = levelsCache.filter(x => !String(x.id).startsWith("demo-"));
+  const maxRank = realLevels.reduce((max, x) => Math.max(max, Number(x.rank) || 0), 0);
+
+  // Не допускаем огромных пропусков, которые создают странный список.
+  if (rank > maxRank + 1 && id) {
+    return showToast(`Выбери rank от 1 до ${maxRank + 1}.`);
+  }
+  if (!id && rank > maxRank + 1) {
+    return showToast(`Выбери rank от 1 до ${maxRank + 1}.`);
+  }
+
+  saving = true;
+  const button = document.getElementById("saveButton");
+  button.disabled = true;
+  button.textContent = "Сохранение...";
+
+  try {
+    const coverUrl = await uploadCover();
+    const levelData = {
+      name,
+      author,
+      score,
+      cover_url: coverUrl || null
+    };
+
+    if (!id) {
+      await insertAtRank(levelData, rank);
+      showToast(`Уровень добавлен на #${rank}.`);
+    } else {
+      const old = realLevels.find(x => String(x.id) === String(id));
+      if (!old) throw new Error("Не удалось найти уровень в базе.");
+
+      await moveLevel(id, Number(old.rank), rank, levelData);
+      showToast(`Уровень перемещён на #${rank}.`);
+    }
+
+    closeModal("levelModal");
+    selectedCoverFile = null;
+    selectedCoverUrl = "";
+    await loadLevels();
+
+  } catch (error) {
+    console.error(error);
+    showToast("Ошибка сохранения: " + (error.message || error));
+    // Обновляем список на случай, если часть операций уже прошла.
+    await loadLevels();
+  } finally {
+    saving = false;
+    button.disabled = false;
+    button.textContent = "Сохранить";
+  }
+}
+
+/* УДАЛЕНИЕ И СДВИГ РАНГОВ ВВЕРХ */
+async function deleteLevel(id) {
+  if (!isAdmin()) return showToast("Нет доступа.");
+
+  const level = levelsCache.find(x => String(x.id) === String(id));
+  if (!level || String(level.id).startsWith("demo-")) return;
+
+  if (!confirm(`Удалить "${level.name}" с позиции #${level.rank}?`)) return;
+
+  try {
+    // Сначала удаляем уровень, освобождая его позицию.
+    const { error } = await db.from("levels").delete().eq("id", id);
+    if (error) throw error;
+
+    // Затем поднимаем все позиции ниже на единицу.
+    const { data, error: selectError } = await db
+      .from("levels")
+      .select("id,rank")
+      .gt("rank", Number(level.rank))
+      .order("rank", { ascending: true });
+
+    if (selectError) throw selectError;
+
+    for (const item of (data || [])) {
+      await setRank(item.id, Number(item.rank) - 1);
+    }
+
+    showToast("Уровень удалён, список обновлён.");
+    await loadLevels();
+  } catch (error) {
+    console.error(error);
+    showToast("Ошибка удаления: " + (error.message || error));
+    await loadLevels();
+  }
+}
+
+/* ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ */
+function getNextRank() {
+  const ranks = levelsCache
+    .filter(x => !String(x.id).startsWith("demo-"))
+    .map(x => Number(x.rank) || 0);
+  return ranks.length ? Math.max(...ranks) + 1 : 1;
+}
+
+function resetCoverInput() {
+  document.getElementById("coverFile").value = "";
+  document.getElementById("coverPreview").style.display = "none";
+  document.getElementById("previewImage").removeAttribute("src");
+  document.getElementById("uploadStatus").textContent =
+    "Выбери изображение с устройства";
+}
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 3500);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function escapeJs(value) {
+  return String(value).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
+/* ЗАКРЫТИЕ ОКОН */
+document.querySelectorAll(".modal-bg").forEach(modal => {
+  modal.addEventListener("click", event => {
+    if (event.target === modal) modal.classList.remove("show");
+  });
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    closeModal("loginModal");
+    closeModal("levelModal");
+  }
+});
+</script>
+</body>
+</html>
